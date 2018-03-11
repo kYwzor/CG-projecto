@@ -1,4 +1,4 @@
-/*******************************************************
+/*********************************************
 ESC: exit
 Movement:
 w : move forwards
@@ -7,19 +7,19 @@ a : move left
 d : move right
 mouse: look around
 
-********************************************************/
+**********************************************/
 
 #include "FPSCamera.h"
 #include <stdio.h>
 #define FAR_CLIPPING_PLANE 20.0
 #define NEAR_CLIPPING_PLANE 0.5
 #define VIEWING_ANGLE 40
-#define BLUE     0.0, 0.0, 1.0, 1.0
-#define RED		 1.0, 0.0, 0.0, 1.0
-#define YELLOW	 1.0, 1.0, 0.0, 1.0
-#define GREEN    0.0, 1.0, 0.0, 1.0
-#define WHITE    1.0, 1.0, 1.0, 1.0
-#define BLACK    0.0, 0.0, 0.0, 1.0
+#define BLUE 		0.0, 0.0, 1.0, 1.0
+#define RED 		1.0, 0.0, 0.0, 1.0
+#define YELLOW 		1.0, 1.0, 0.0, 1.0
+#define GREEN 		0.0, 1.0, 0.0, 1.0
+#define WHITE 		1.0, 1.0, 1.0, 1.0
+#define BLACK 		0.0, 0.0, 0.0, 1.0
 
 FPSCamera camera;
 bool keyState[8];
@@ -30,8 +30,7 @@ GLfloat yCenter = (GLfloat)windowHeight/2;
 
 void drawNet(GLfloat size, GLint LinesX, GLint LinesZ) {
 	glBegin(GL_LINES);
-	for (int xc = 0; xc < LinesX; xc++)
-	{
+	for (int xc = 0; xc < LinesX; xc++)	{
 		glVertex3f(	-size / 2.0 + xc / (GLfloat)(LinesX-1)*size,
 					0.0,
 					size / 2.0);
@@ -39,8 +38,7 @@ void drawNet(GLfloat size, GLint LinesX, GLint LinesZ) {
 					0.0,
 					size / -2.0);
 	}
-	for (int zc = 0; zc < LinesX; zc++)
-	{
+	for (int zc = 0; zc < LinesX; zc++) {
 		glVertex3f(	size / 2.0,
 					0.0,
 					-size / 2.0 + zc / (GLfloat)(LinesZ-1)*size);
@@ -61,7 +59,6 @@ void drawBox() {
 		glTranslatef(0.0,0.8,0.0);
 
 		glScalef(3.0,1.0,3.0);
-		
 
 		glColor4f(WHITE);
 		glPushMatrix();
@@ -73,7 +70,7 @@ void drawBox() {
 
 		glColor4f(BLUE);
 		glPushMatrix();
-			glTranslatef(-halfsize,0.0,0.0);	
+			glTranslatef(-halfsize,0.0,0.0);
 			glRotatef(90.0,0.0,0.0,halfsize);
 			drawNet(size,LinesX,LinesZ);
 			glTranslatef(0.0,-size,0.0);
@@ -82,7 +79,7 @@ void drawBox() {
 
 		glColor4f(RED);
 		glPushMatrix();
-			glTranslatef(0.0,0.0,-halfsize);	
+			glTranslatef(0.0,0.0,-halfsize);
 			glRotatef(90.0,halfsize,0.0,0.0);
 			drawNet(size,LinesX,LinesZ);
 			glTranslatef(0.0,size,0.0);
@@ -92,21 +89,21 @@ void drawBox() {
 }
 
 void drawAxis() {
-  // Eixo X
+	// Eixo X
 	glColor4f(RED);
 	glBegin(GL_LINES);
 		glVertex3i( 0, 0, 0);
 		glVertex3i(10, 0, 0);
 	glEnd();
 
-  // Eixo Y
+	// Eixo Y
 	glColor4f(GREEN);
 	glBegin(GL_LINES);
 		glVertex3i(0,  0, 0);
 		glVertex3i(0, 10, 0);
 	glEnd();
 
-  // Eixo Z
+	// Eixo Z
 	glColor4f(BLUE);
 	glBegin(GL_LINES);
 		glVertex3i( 0, 0, 0);
@@ -122,7 +119,7 @@ void reshape(int newWidth, int newHeight) {
 
 	if (newWidth == 0 || newHeight == 0) return;  // avoid division by 0
 
-	glMatrixMode(GL_PROJECTION);  
+	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(VIEWING_ANGLE,(GLdouble)newWidth/newHeight, NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE); //adapt perspective to new window
 
@@ -152,14 +149,14 @@ void display(void) {
 	glutSwapBuffers();
 }
 
-void keyDown(unsigned char key, int x, int y){
+void keyDown(unsigned char key, int x, int y) {
 	switch (key) {
 		case 27:		//ESC
 			exit(0);
 			break;
 		case 'W':
 		case 'w':
-			keyState[K_FRONT] = true;		
+			keyState[K_FRONT] = true;
 			break;
 		case 'S':
 		case 's':
@@ -177,19 +174,19 @@ void keyDown(unsigned char key, int x, int y){
 	glutPostRedisplay();
 }
 
-void keyUp(unsigned char key, int x, int y){
+void keyUp(unsigned char key, int x, int y) {
 	switch (key) {
 		case 'W':
 		case 'w':
-			keyState[K_FRONT] = false;		
+			keyState[K_FRONT] = false;
 			break;
 		case 'S':
 		case 's':
-		    keyState[K_BACK] = false;		
+		    keyState[K_BACK] = false;
 			break;
 		case 'A':
 		case 'a':
-			keyState[K_LEFT] = false;	
+			keyState[K_LEFT] = false;
 			break;
 		case 'D':
 		case 'd':
@@ -199,7 +196,7 @@ void keyUp(unsigned char key, int x, int y){
 	glutPostRedisplay();
 }
 
-void mouseMovement(int x, int y){
+void mouseMovement(int x, int y) {
 	if (x==xCenter && y==yCenter) return;
 	camera.rotateHorizontal((xCenter - x)/20);
 	camera.rotateVertical((yCenter - y)/20);
@@ -208,12 +205,12 @@ void mouseMovement(int x, int y){
 	glutPostRedisplay();
 }
 
-void animate(){
+void animate() {
 	// This is needed to keep moving while keys are pressed down
 	glutPostRedisplay();
 }
 
-void initialization(){
+void initialization() {
 	glClearColor(BLACK);
 	glEnable(GL_DEPTH_TEST);	//Profundidade
 	glShadeModel(GL_SMOOTH);	//Interpolacao de cores
@@ -224,7 +221,7 @@ void initialization(){
 	glutSetCursor(GLUT_CURSOR_NONE);
 }
 
-int main(int argc, char **argv){
+int main(int argc, char **argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize(windowWidth,windowHeight);
@@ -245,5 +242,5 @@ int main(int argc, char **argv){
 	glutIdleFunc(animate);
 
 	glutMainLoop();
-	return 0;             
+	return 0;
 }

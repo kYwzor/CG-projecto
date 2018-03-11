@@ -11,14 +11,14 @@ struct Vector3 {
 };
 
 class FPSCamera {
-private:
-	GLfloat xAngle, yAngle;
-	Vector3 position;
-	Vector3 forward;
-public:
-	FPSCamera();
-	void rotateHorizontal (GLfloat angle);
-	void rotateVertical (GLfloat angle);
-	void render ();
-	void move (int direction);
+	private:
+		GLfloat xAngle, yAngle;
+		Vector3 position;
+		Vector3 forward;
+	public:
+		FPSCamera();
+		void rotateHorizontal (GLfloat angle);
+		void rotateVertical (GLfloat angle);
+		void render ();
+		void move (int direction);
 };

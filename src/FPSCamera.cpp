@@ -53,7 +53,7 @@ void FPSCamera::move(int direction) {
 	if (direction == K_BACK || direction == K_RIGHT)
 		multiplier = -1;
 
-	if (direction == K_LEFT || direction == K_RIGHT){
+	if (direction == K_LEFT || direction == K_RIGHT) {
 		movement.x = forward.z * MOVE_SPEED * multiplier;
 		movement.z = -forward.x * MOVE_SPEED * multiplier;
 	}
