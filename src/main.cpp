@@ -7,12 +7,14 @@ a : move left
 d : move right
 mouse: look around
 
+m: ignore mouse
+
 **********************************************/
 
 #include "FPSCamera.h"
 #include <stdio.h>
 #define FAR_CLIPPING_PLANE 20.0
-#define NEAR_CLIPPING_PLANE 0.5
+#define NEAR_CLIPPING_PLANE 0.01
 #define VIEWING_ANGLE 40
 #define BLUE 		0.0, 0.0, 1.0, 1.0
 #define RED 		1.0, 0.0, 0.0, 1.0
@@ -22,68 +24,59 @@ mouse: look around
 #define BLACK 		0.0, 0.0, 0.0, 1.0
 
 FPSCamera camera;
+bool ignoreMouse = false;
 bool keyState[8];
 int windowWidth = 640;
 int windowHeight = 400;
 GLfloat xCenter = (GLfloat)windowWidth/2;
 GLfloat yCenter = (GLfloat)windowHeight/2;
 
-void drawNet(GLfloat size, GLint LinesX, GLint LinesZ) {
+void drawNet(GLint linesX, GLint linesZ) {
 	glBegin(GL_LINES);
-	for (int xc = 0; xc < LinesX; xc++)	{
-		glVertex3f(	-size / 2.0 + xc / (GLfloat)(LinesX-1)*size,
-					0.0,
-					size / 2.0);
-		glVertex3f(	-size / 2.0 + xc / (GLfloat)(LinesX-1)*size,
-					0.0,
-					size / -2.0);
+	GLfloat half = 0.5;
+	for (int xc = 0; xc < linesX; xc++) {
+		glVertex3f(-half + xc / (GLfloat)(linesX-1), 0.0, half);
+		glVertex3f(-half + xc / (GLfloat)(linesX-1), 0.0, -half);
 	}
-	for (int zc = 0; zc < LinesX; zc++) {
-		glVertex3f(	size / 2.0,
-					0.0,
-					-size / 2.0 + zc / (GLfloat)(LinesZ-1)*size);
-		glVertex3f(	size / -2.0,
-					0.0,
-					-size / 2.0 + zc / (GLfloat)(LinesZ-1)*size);
+	for (int zc = 0; zc < linesX; zc++) {
+		glVertex3f(half, 0.0,-half + zc / (GLfloat)(linesZ-1));
+		glVertex3f(-half, 0.0, -half + zc / (GLfloat)(linesZ-1));
 	}
 	glEnd();
 }
 
 
-void drawBox() {
-	GLfloat size = 2.0;
-	GLint LinesX = 30;
-	GLint LinesZ = 30;
-	GLfloat halfsize = size / 2.0;
+void drawBox(GLfloat sizeX, GLfloat sizeY, GLfloat sizeZ) {
+	GLint linesX = 30;
+	GLint linesZ = 30;
 	glPushMatrix();
-		glTranslatef(0.0,0.8,0.0);
-
-		glScalef(3.0,1.0,3.0);
+		glTranslatef(0, sizeY/2, 0);
+		glScalef(sizeX,sizeY,sizeZ);
 
 		glColor4f(WHITE);
 		glPushMatrix();
-			glTranslatef(0.0,-halfsize ,0.0);
-			drawNet(size,LinesX,LinesZ);
-			glTranslatef(0.0,size,0.0);
-			drawNet(size,LinesX,LinesZ);
+			glTranslatef(0, -0.5, 0);
+			drawNet(linesX,linesZ);
+			glTranslatef(0 ,1, 0);
+			drawNet(linesX,linesZ);
 		glPopMatrix();
 
 		glColor4f(BLUE);
 		glPushMatrix();
-			glTranslatef(-halfsize,0.0,0.0);
-			glRotatef(90.0,0.0,0.0,halfsize);
-			drawNet(size,LinesX,LinesZ);
-			glTranslatef(0.0,-size,0.0);
-			drawNet(size,LinesX,LinesZ);
+			glTranslatef(-0.5, 0, 0);
+			glRotatef(90, 0, 0, 1);
+			drawNet(linesX,linesZ);
+			glTranslatef(0, -1, 0);
+			drawNet(linesX,linesZ);
 		glPopMatrix();
 
 		glColor4f(RED);
 		glPushMatrix();
-			glTranslatef(0.0,0.0,-halfsize);
-			glRotatef(90.0,halfsize,0.0,0.0);
-			drawNet(size,LinesX,LinesZ);
-			glTranslatef(0.0,size,0.0);
-			drawNet(size,LinesX,LinesZ);
+			glTranslatef(0, 0, -0.5);
+			glRotatef(90,1,0,0);
+			drawNet(linesX,linesZ);
+			glTranslatef(0, 1, 0);
+			drawNet(linesX,linesZ);
 		glPopMatrix();
 	glPopMatrix();
 }
@@ -117,14 +110,15 @@ void reshape(int newWidth, int newHeight) {
 	xCenter = (GLfloat)windowWidth/2;
 	yCenter = (GLfloat)windowHeight/2;
 
-	if (newWidth == 0 || newHeight == 0) return;  // avoid division by 0
+	if (windowWidth == 0 || windowHeight == 0) return;  // avoid division by 0
+
+	glViewport(0,0,windowWidth,windowHeight);  // Fit to the new window
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(VIEWING_ANGLE,(GLdouble)newWidth/newHeight, NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE); //adapt perspective to new window
+	gluPerspective(VIEWING_ANGLE,(GLdouble)windowWidth/windowHeight, NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE); //adapt perspective to new window
 
 	glMatrixMode(GL_MODELVIEW);
-	glViewport(0,0,newWidth,newHeight);  // Fit to the new window
 }
 
 void applyKeys() {
@@ -144,7 +138,8 @@ void display(void) {
 	camera.render();
 
 	drawAxis();
-	drawBox();
+	drawBox(6, 2, 6);
+	//drawNet(30, 30);
 
 	glutSwapBuffers();
 }
@@ -154,6 +149,15 @@ void keyDown(unsigned char key, int x, int y) {
 		case 27:		//ESC
 			exit(0);
 			break;
+		case 'M':
+		case 'm':
+			ignoreMouse = !ignoreMouse;
+			if (ignoreMouse)
+				glutSetCursor(GLUT_CURSOR_INHERIT); //TODO: Find default name
+			else
+				glutSetCursor(GLUT_CURSOR_NONE);
+			break;
+
 		case 'W':
 		case 'w':
 			keyState[K_FRONT] = true;
@@ -197,7 +201,9 @@ void keyUp(unsigned char key, int x, int y) {
 }
 
 void mouseMovement(int x, int y) {
-	if (x==xCenter && y==yCenter) return;
+	if (ignoreMouse) return;
+	if (x==(int)xCenter && y==(int)yCenter) return;		// Typecast needed for correct comparison
+
 	camera.rotateHorizontal((xCenter - x)/20);
 	camera.rotateVertical((yCenter - y)/20);
 
@@ -223,7 +229,7 @@ void initialization() {
 
 int main(int argc, char **argv) {
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(windowWidth,windowHeight);
 	glutCreateWindow("Teste");
 
