@@ -31,56 +31,6 @@ int windowHeight = 400;
 GLfloat xCenter = (GLfloat)windowWidth/2;
 GLfloat yCenter = (GLfloat)windowHeight/2;
 
-void drawNet(GLint linesX, GLint linesZ) {
-	glBegin(GL_LINES);
-	GLfloat half = 0.5;
-	for (int xc = 0; xc < linesX; xc++) {
-		glVertex3f(-half + xc / (GLfloat)(linesX-1), 0.0, half);
-		glVertex3f(-half + xc / (GLfloat)(linesX-1), 0.0, -half);
-	}
-	for (int zc = 0; zc < linesX; zc++) {
-		glVertex3f(half, 0.0,-half + zc / (GLfloat)(linesZ-1));
-		glVertex3f(-half, 0.0, -half + zc / (GLfloat)(linesZ-1));
-	}
-	glEnd();
-}
-
-
-void drawBox(GLfloat sizeX, GLfloat sizeY, GLfloat sizeZ) {
-	GLint linesX = 30;
-	GLint linesZ = 30;
-	glPushMatrix();
-		glTranslatef(0, sizeY/2, 0);
-		glScalef(sizeX,sizeY,sizeZ);
-
-		glColor4f(WHITE);
-		glPushMatrix();
-			glTranslatef(0, -0.5, 0);
-			drawNet(linesX,linesZ);
-			glTranslatef(0 ,1, 0);
-			drawNet(linesX,linesZ);
-		glPopMatrix();
-
-		glColor4f(BLUE);
-		glPushMatrix();
-			glTranslatef(-0.5, 0, 0);
-			glRotatef(90, 0, 0, 1);
-			drawNet(linesX,linesZ);
-			glTranslatef(0, -1, 0);
-			drawNet(linesX,linesZ);
-		glPopMatrix();
-
-		glColor4f(RED);
-		glPushMatrix();
-			glTranslatef(0, 0, -0.5);
-			glRotatef(90,1,0,0);
-			drawNet(linesX,linesZ);
-			glTranslatef(0, 1, 0);
-			drawNet(linesX,linesZ);
-		glPopMatrix();
-	glPopMatrix();
-}
-
 void drawAxis() {
 	// Eixo X
 	glColor4f(RED);
@@ -138,7 +88,6 @@ void drawWardrobe() {
 		glTranslatef(-24, 10.5, 18);
 		glScalef(1, 18, 11);
 		glutWireCube(1);	//lado esquerdo
-
 		glTranslatef(14, 0, 0);
 		glutWireCube(1);	//lado direito
 	glPopMatrix();
@@ -146,7 +95,6 @@ void drawWardrobe() {
 		glTranslatef(-17, 1, 18);
 		glScalef(15, 1, 11);
 		glutWireCube(1);	//baixo
-
 		glTranslatef(0, 19, 0);
 		glutWireCube(1);	//teto
 	glPopMatrix();
@@ -158,10 +106,18 @@ void drawWardrobe() {
 	glPushMatrix();
 		glTranslatef(-20.25, 10.5, 13);
 		glScalef(6.5, 18, 1);
-		glutWireCube(1);
-
-		glTranslatef(7.5, 0, 0);
-		glutWireCube(1);
+		glutWireCube(1);	//porta esquerda
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(-13.75, 10.5, 13);
+		glScalef(6.5, 18, 1);
+		glutWireCube(1);	//porta direita
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(-18, 9, 12);
+		glutWireSphere(0.5, 6, 6);	//macaneta esquerda
+		glTranslatef(2, 0, 0);
+		glutWireSphere(0.5, 6, 6);	//macaneta direita
 	glPopMatrix();
 }
 
@@ -170,6 +126,85 @@ void drawNightstand() {
 		glTranslatef(4, 3.5, -20);
 		glScalef(10, 6, 6);
 		glutWireCube(1);
+	glPopMatrix();
+}
+
+void drawBed(){
+	glPushMatrix();
+		//pernas da cama
+		glTranslatef(23, 2.5, -22);
+		glScalef(1, 4, 1);
+		glutWireCube(1);
+		glTranslatef(-12, 0, 0);
+		glutWireCube(1);
+		glTranslatef(0, 0, 22);
+		glutWireCube(1);
+		glTranslatef(12, 0, 0);
+		glutWireCube(1);
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(17, 5, -11);
+		glScalef(13, 1, 23);
+		glutWireCube(1);	//armacao
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(17, 9.5, -22);
+		glScalef(13, 8, 1);
+		glutWireCube(1);	//cabeceira
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(17, 7, -10.75);
+		glScalef(12, 2.5, 21.5);
+		glutWireCube(1);	//colchao
+	glPopMatrix();
+}
+
+void drawSeat(){
+	glPushMatrix();
+		//pernas da cadeira
+		glTranslatef(3, 2.5, 12);
+		glScalef(1, 4, 1);
+		glutWireCube(1);
+		glTranslatef(-6, 0, 0);
+		glutWireCube(1);
+		glTranslatef(0, 0, -4);
+		glutWireCube(1);
+		glTranslatef(6, 0, 0);
+		glutWireCube(1);
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(0, 5, 10);
+		glScalef(7, 1 , 5);
+		glutWireCube(1);
+	glPopMatrix();
+}
+
+void drawTable(){
+	//pernas
+	glPushMatrix();
+		glTranslatef(5, 4, 23);
+		glScalef(0.75, 7, 0.75);
+		glutWireCube(1);
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(-5, 4, 23);
+		glScalef(0.75, 7, 0.75);
+		glutWireCube(1);
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(-5, 4, 16);
+		glScalef(0.75, 7, 0.75);
+		glutWireCube(1);
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(5, 4, 16);
+		glScalef(0.75, 7, 0.75);
+		glutWireCube(1);
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(0, 8, 19);
+		glScalef(15, 1, 10);
+		glutWireCube(1);	//tampo
 	glPopMatrix();
 }
 
@@ -189,13 +224,15 @@ void display(void) {
 	applyKeys();
 	camera.render();
 
-	glScalef(-1, 1, 1);
+	glScalef(-1, 1, 1);	//mirroring x axis
 	drawAxis();
-	//drawBox(6, 2, 6);
-	//drawNet(30, 30);
+
 	drawWalls();
 	drawWardrobe();
-	//drawNightstand();
+	drawNightstand();
+	drawBed();
+	drawSeat();
+	drawTable();
 
 	glutSwapBuffers();
 }
