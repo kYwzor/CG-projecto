@@ -4,7 +4,7 @@
 #define K_BACK 1
 #define K_LEFT 2
 #define K_RIGHT 3
-#define MOVE_SPEED 0.02
+#define MOVE_SPEED 0.2
 
 struct Vector3 {
 	GLfloat x,y,z;

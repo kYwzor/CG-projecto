@@ -13,7 +13,7 @@ m: ignore mouse
 
 #include "FPSCamera.h"
 #include <stdio.h>
-#define FAR_CLIPPING_PLANE 20.0
+#define FAR_CLIPPING_PLANE 10000
 #define NEAR_CLIPPING_PLANE 0.01
 #define VIEWING_ANGLE 40
 #define BLUE 		0.0, 0.0, 1.0, 1.0
@@ -104,21 +104,73 @@ void drawAxis() {
 	glEnd();
 }
 
-void reshape(int newWidth, int newHeight) {
-	windowWidth = newWidth;
-	windowHeight = newHeight;
-	xCenter = (GLfloat)windowWidth/2;
-	yCenter = (GLfloat)windowHeight/2;
+void drawWalls() {
+	glPushMatrix();
+		glColor4f(WHITE);
+		glScalef(50, 1, 48);
+		glutWireCube(1);	//chao
 
-	if (windowWidth == 0 || windowHeight == 0) return;  // avoid division by 0
+		glTranslatef(0, 29, 0);
+		glutWireCube(1);	//teto
+	glPopMatrix();
+	glPushMatrix();
+		glColor4f(BLUE);
+		glTranslatef(-25.5, 14.5, 0);
+		glScalef(1,30,50);
+		glutWireCube(1);	//parede da porta
 
-	glViewport(0,0,windowWidth,windowHeight);  // Fit to the new window
+		glTranslatef(51, 0, 0);
+		glutWireCube(1);	//parede da janela
+	glPopMatrix();
+	glPushMatrix();
+		glColor4f(RED);
+		glTranslatef(0, 14.5, 24.5);
+		glScalef(50, 30, 1);
+		glutWireCube(1);	//parede do computador
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(VIEWING_ANGLE,(GLdouble)windowWidth/windowHeight, NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE); //adapt perspective to new window
+		glTranslatef(0, 0, -49);
+		glutWireCube(1);	//parede da cabeceira
+	glPopMatrix();
+}
 
-	glMatrixMode(GL_MODELVIEW);
+void drawWardrobe() {
+	glPushMatrix();
+		glTranslatef(-24, 10.5, 18);
+		glScalef(1, 18, 11);
+		glutWireCube(1);	//lado esquerdo
+
+		glTranslatef(14, 0, 0);
+		glutWireCube(1);	//lado direito
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(-17, 1, 18);
+		glScalef(15, 1, 11);
+		glutWireCube(1);	//baixo
+
+		glTranslatef(0, 19, 0);
+		glutWireCube(1);	//teto
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(-17, 10.5, 23);
+		glScalef(13, 18, 1);
+		glutWireCube(1);	//tras
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(-20.25, 10.5, 13);
+		glScalef(6.5, 18, 1);
+		glutWireCube(1);
+
+		glTranslatef(7.5, 0, 0);
+		glutWireCube(1);
+	glPopMatrix();
+}
+
+void drawNightstand() {
+	glPushMatrix();
+		glTranslatef(4, 3.5, -20);
+		glScalef(10, 6, 6);
+		glutWireCube(1);
+	glPopMatrix();
 }
 
 void applyKeys() {
@@ -137,11 +189,32 @@ void display(void) {
 	applyKeys();
 	camera.render();
 
+	glScalef(-1, 1, 1);
 	drawAxis();
-	drawBox(6, 2, 6);
+	//drawBox(6, 2, 6);
 	//drawNet(30, 30);
+	drawWalls();
+	drawWardrobe();
+	//drawNightstand();
 
 	glutSwapBuffers();
+}
+
+void reshape(int newWidth, int newHeight) {
+	windowWidth = newWidth;
+	windowHeight = newHeight;
+	xCenter = (GLfloat)windowWidth/2;
+	yCenter = (GLfloat)windowHeight/2;
+
+	if (windowWidth == 0 || windowHeight == 0) return;  // avoid division by 0
+
+	glViewport(0,0,windowWidth,windowHeight);  // Fit to the new window
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(VIEWING_ANGLE,(GLdouble)windowWidth/windowHeight, NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE); //adapt perspective to new window
+
+	glMatrixMode(GL_MODELVIEW);
 }
 
 void keyDown(unsigned char key, int x, int y) {

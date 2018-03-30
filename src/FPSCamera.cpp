@@ -4,7 +4,7 @@
 FPSCamera::FPSCamera() {
 	// Initializing all variables
 	position.x = 0.0;
-	position.y = 0.4; // Start slightly above ground. This never changes.
+	position.y = 12; // Start slightly above ground. This never changes.
 	position.z = 0.0;
 
 	forward.x = 0.0;
