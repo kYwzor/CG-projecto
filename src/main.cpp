@@ -135,12 +135,14 @@ void drawNightstand() {
 	glPushMatrix();
 		glTranslatef(-1.5, 6.5, -20);
 		glRotatef(-90, 1, 0, 0);
-		gluCylinder(gluNewQuadric(), 0.5, 0.5, 1.5, 8, 8);	//lata
+		GLUquadric* quad = gluNewQuadric();
+		gluCylinder(quad, 0.5, 0.5, 1.5, 8, 8);	//lata
 		//glRotatef(180, 1, 0, 0);
-		//gluDisk(gluNewQuadric(), 0, 0.5, 8, 1);
+		//gluDisk(quad, 0, 0.5, 8, 1);
 		//glRotatef(180, 1, 0, 0);
 		glTranslatef(0, 0, 1.5);
-		gluDisk(gluNewQuadric(), 0, 0.5, 8, 1);		//parte de cima
+		gluDisk(quad, 0, 0.5, 8, 1);		//parte de cima
+		gluDeleteQuadric(quad);
 	glPopMatrix();
 }
 
@@ -199,26 +201,28 @@ void drawSeat(){
 void drawTable(){
 	glColor4f(BLUE);
 	//pernas
+	GLUquadric* quad = gluNewQuadric();
 	glPushMatrix();
 		glTranslatef(-5, 0, 22.5);
 		glRotatef(-90, 1, 0, 0);
-		gluCylinder(gluNewQuadric(), 0.5, 0.5, 7, 6, 6);
+		gluCylinder(quad, 0.5, 0.5, 7, 6, 6);
 	glPopMatrix();
 	glPushMatrix();
 		glTranslatef(5, 0, 22.5);
 		glRotatef(-90, 1, 0, 0);
-		gluCylinder(gluNewQuadric(), 0.5, 0.5, 7, 6, 6);
+		gluCylinder(quad, 0.5, 0.5, 7, 6, 6);
 	glPopMatrix();
 	glPushMatrix();
 		glTranslatef(5, 0, 15.5);
 		glRotatef(-90, 1, 0, 0);
-		gluCylinder(gluNewQuadric(), 0.5, 0.5, 7, 6, 6);
+		gluCylinder(quad, 0.5, 0.5, 7, 6, 6);
 	glPopMatrix();
 	glPushMatrix();
 		glTranslatef(-5, 0, 15.5);
 		glRotatef(-90, 1, 0, 0);
-		gluCylinder(gluNewQuadric(), 0.5, 0.5, 7, 6, 6);
+		gluCylinder(quad, 0.5, 0.5, 7, 6, 6);
 	glPopMatrix();
+	gluDeleteQuadric(quad);
 	glPushMatrix();
 		glTranslatef(0, 8, 19);
 		glScalef(15, 1, 10);
