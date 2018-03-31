@@ -1,19 +1,22 @@
 /*********************************************
-ESC: exit
-Movement:
-w : move forwards
-s : move backwards
-a : move left
-d : move right
-mouse: look around
+Artur Coutinho - 2014230432
+Tiago Gomes - 2015238615
 
-m: ignore mouse
+ESC: exit
+M: ignore mouse
+
+Movement:
+	W : move forwards
+	S : move backwards
+	A : move left
+	D : move right
+	mouse: look around
 
 **********************************************/
 
 #include "FPSCamera.h"
 #include <stdio.h>
-#define FAR_CLIPPING_PLANE 10000
+#define FAR_CLIPPING_PLANE 1000
 #define NEAR_CLIPPING_PLANE 0.01
 #define VIEWING_ANGLE 40
 #define BLUE 		0.0, 0.0, 1.0, 1.0
@@ -57,7 +60,6 @@ void drawAxis() {
 void drawWalls() {
 	glColor4f(WHITE);
 	glPushMatrix();
-		//glColor4f(WHITE);
 		glScalef(50, 1, 48);
 		glutWireCube(1);	//chao
 
@@ -65,7 +67,6 @@ void drawWalls() {
 		glutWireCube(1);	//teto
 	glPopMatrix();
 	glPushMatrix();
-		//glColor4f(BLUE);
 		glTranslatef(25.5, 14.5, 0);
 		glScalef(1,30,50);
 		glutWireCube(1);	//parede da porta
@@ -74,7 +75,6 @@ void drawWalls() {
 		glutWireCube(1);	//parede da janela
 	glPopMatrix();
 	glPushMatrix();
-		//glColor4f(RED);
 		glTranslatef(0, 14.5, 24.5);
 		glScalef(50, 30, 1);
 		glutWireCube(1);	//parede do computador
@@ -324,7 +324,7 @@ void keyDown(unsigned char key, int x, int y) {
 		case 'm':
 			ignoreMouse = !ignoreMouse;
 			if (ignoreMouse)
-				glutSetCursor(GLUT_CURSOR_INHERIT); //TODO: Find default name
+				glutSetCursor(GLUT_CURSOR_INHERIT);
 			else
 				glutSetCursor(GLUT_CURSOR_NONE);
 			break;
@@ -402,7 +402,7 @@ int main(int argc, char **argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(windowWidth,windowHeight);
-	glutCreateWindow("Teste");
+	glutCreateWindow("Meta 1 CG");
 
 	initialization();
 

@@ -48,10 +48,10 @@ void FPSCamera::move(int direction) {
 	int multiplier = 1;
 
 	Vector3 movement;
-	movement.y = 0.0;
+	movement.y = 0;		// y never changes
 
 	if (direction == K_BACK || direction == K_RIGHT)
-		multiplier = -1;
+		multiplier = -1;	//back and right are the negative sides
 
 	if (direction == K_LEFT || direction == K_RIGHT) {
 		movement.x = forward.z * MOVE_SPEED * multiplier;

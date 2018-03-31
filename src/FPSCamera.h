@@ -1,5 +1,5 @@
 #include <GL/glut.h>
-#define RADIAN_MULTIPLIER 3.14159265359/180.0
+#define RADIAN_MULTIPLIER 3.14159265359/180.0	//para conversao graus -> radianos
 #define K_FRONT 0
 #define K_BACK 1
 #define K_LEFT 2
