@@ -30,7 +30,7 @@ FPSCamera camera;
 bool ignoreMouse = false;
 bool keyState[8];
 int windowWidth = 640;
-int windowHeight = 400;
+int windowHeight = 480;
 GLfloat xCenter = (GLfloat)windowWidth/2;
 GLfloat yCenter = (GLfloat)windowHeight/2;
 
@@ -55,6 +55,66 @@ void drawAxis() {
 		glVertex3i( 0, 0, 0);
 		glVertex3i( 0, 0,10);
 	glEnd();
+}
+
+void squareMesh(int dim){
+	int i, j, x = 0;
+	float med_dim = (float)dim/2;
+	GLfloat stuff[6][4] = {BLUE, RED, YELLOW, GREEN, WHITE, BLACK};
+	glPushMatrix();
+		glTranslatef(-1.0,-1.0,0);  // meio do poligono 
+		glBegin(GL_QUADS);
+			
+			for (i=0;i<dim;i++) {
+				for (j=0;j<dim;j++) {
+					glColor4fv(stuff[x]);
+					x = (x+1) % 6;
+					//glNormal(0,1,0);
+					//glTexCoord2f((float)j/dim,(float)i/dim);
+					glVertex3d((float)j/med_dim,(float)i/med_dim,0);
+					//glTexCoord2f((float)(j+1)/dim,(float)i/dim);
+					glVertex3d((float)(j+1)/med_dim,(float)i/med_dim,0);
+					//glTexCoord2f((float)(j+1)/dim,(float)(i+1)/dim);
+					glVertex3d((float)(j+1)/med_dim,(float)(i+1)/med_dim,0);
+					//glTexCoord2f((float)j/dim,(float)(i+1)/dim);
+					glVertex3d((float)j/med_dim,(float)(i+1)/med_dim,0);
+				}
+			}
+		glEnd();
+	glPopMatrix();
+}
+
+void cubeMesh(int scaleX, int scaleY, int scaleZ, int dim){
+	glPushMatrix();
+		glScalef(scaleX, scaleY, scaleZ);
+		glPushMatrix();
+			glTranslatef(0, 0, 1);
+			squareMesh(dim);		//front
+			glTranslatef(0, 0, -2);
+			glRotatef(180, 0, 1, 0);
+			squareMesh(dim);		//back
+		glPopMatrix();
+		glPushMatrix();
+			glTranslatef(1, 0, 0);
+			glRotatef(90, 0, 1, 0);	
+			squareMesh(dim);		//right
+		glPopMatrix();
+		glPushMatrix();
+			glTranslatef(-1, 0, 0);
+			glRotatef(-90, 0, 1, 0);
+			squareMesh(dim);		//left
+		glPopMatrix();
+		glPushMatrix();
+			glTranslatef(0, -1, 0);
+			glRotatef(90, 1, 0, 0);
+			squareMesh(dim);		//bottom
+		glPopMatrix();
+		glPushMatrix();
+			glTranslatef(0, 1, 0);
+			glRotatef(-90, 1, 0, 0);
+			squareMesh(dim);		//top
+		glPopMatrix();
+	glPopMatrix();
 }
 
 void drawWalls() {
@@ -268,7 +328,6 @@ void drawObjects(){
 	glPopMatrix();
 }
 
-
 void applyKeys() {
 	// Reads keyState array and moves camera accordingly
 	int i;
@@ -294,6 +353,7 @@ void display(void) {
 	drawSeat();
 	drawTable();
 	drawObjects();
+	//cubeMesh(5, 5, 5, 5);
 
 	glutSwapBuffers();
 }
