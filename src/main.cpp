@@ -59,10 +59,9 @@ void drawAxis() {
 
 void squareMesh(int dim){
 	int i, j, x = 0;
-	float med_dim = (float)dim/2;
 	GLfloat stuff[6][4] = {BLUE, RED, YELLOW, GREEN, WHITE, BLACK};
 	glPushMatrix();
-		glTranslatef(-1.0,-1.0,0);  // meio do poligono 
+		glTranslatef(-0.5,-0.5,0);  // meio do poligono 
 		glBegin(GL_QUADS);
 			
 			for (i=0;i<dim;i++) {
@@ -71,46 +70,46 @@ void squareMesh(int dim){
 					x = (x+1) % 6;
 					//glNormal(0,1,0);
 					//glTexCoord2f((float)j/dim,(float)i/dim);
-					glVertex3d((float)j/med_dim,(float)i/med_dim,0);
+					glVertex3d((float)j/dim,(float)i/dim,0);
 					//glTexCoord2f((float)(j+1)/dim,(float)i/dim);
-					glVertex3d((float)(j+1)/med_dim,(float)i/med_dim,0);
+					glVertex3d((float)(j+1)/dim,(float)i/dim,0);
 					//glTexCoord2f((float)(j+1)/dim,(float)(i+1)/dim);
-					glVertex3d((float)(j+1)/med_dim,(float)(i+1)/med_dim,0);
+					glVertex3d((float)(j+1)/dim,(float)(i+1)/dim,0);
 					//glTexCoord2f((float)j/dim,(float)(i+1)/dim);
-					glVertex3d((float)j/med_dim,(float)(i+1)/med_dim,0);
+					glVertex3d((float)j/dim,(float)(i+1)/dim,0);
 				}
 			}
 		glEnd();
 	glPopMatrix();
 }
 
-void cubeMesh(int scaleX, int scaleY, int scaleZ, int dim){
+void cubeMesh(float scaleX, float scaleY, float scaleZ, int dim){
 	glPushMatrix();
 		glScalef(scaleX, scaleY, scaleZ);
 		glPushMatrix();
-			glTranslatef(0, 0, 1);
+			glTranslatef(0, 0, 0.5);
 			squareMesh(dim);		//front
-			glTranslatef(0, 0, -2);
+			glTranslatef(0, 0, -1);
 			glRotatef(180, 0, 1, 0);
 			squareMesh(dim);		//back
 		glPopMatrix();
 		glPushMatrix();
-			glTranslatef(1, 0, 0);
+			glTranslatef(0.5, 0, 0);
 			glRotatef(90, 0, 1, 0);	
 			squareMesh(dim);		//right
 		glPopMatrix();
 		glPushMatrix();
-			glTranslatef(-1, 0, 0);
+			glTranslatef(-0.5, 0, 0);
 			glRotatef(-90, 0, 1, 0);
 			squareMesh(dim);		//left
 		glPopMatrix();
 		glPushMatrix();
-			glTranslatef(0, -1, 0);
+			glTranslatef(0, -0.5, 0);
 			glRotatef(90, 1, 0, 0);
 			squareMesh(dim);		//bottom
 		glPopMatrix();
 		glPushMatrix();
-			glTranslatef(0, 1, 0);
+			glTranslatef(0, 0.5, 0);
 			glRotatef(-90, 1, 0, 0);
 			squareMesh(dim);		//top
 		glPopMatrix();
@@ -119,6 +118,7 @@ void cubeMesh(int scaleX, int scaleY, int scaleZ, int dim){
 
 void drawWalls() {
 	glColor4f(WHITE);
+	/*
 	glPushMatrix();
 		glScalef(50, 1, 48);
 		glutWireCube(1);	//chao
@@ -126,6 +126,14 @@ void drawWalls() {
 		glTranslatef(0, 29, 0);
 		glutWireCube(1);	//teto
 	glPopMatrix();
+	*/
+	glPushMatrix();
+		cubeMesh(50, 1, 48, 25);
+
+		glTranslatef(0, 29, 0);
+		cubeMesh(50, 1, 48, 25);	//teto
+	glPopMatrix();
+
 	glPushMatrix();
 		glTranslatef(25.5, 14.5, 0);
 		glScalef(1,30,50);
@@ -353,7 +361,8 @@ void display(void) {
 	drawSeat();
 	drawTable();
 	drawObjects();
-	//cubeMesh(5, 5, 5, 5);
+
+	cubeMesh(1, 1, 1, 5);
 
 	glutSwapBuffers();
 }
