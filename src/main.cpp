@@ -15,6 +15,7 @@ Movement:
 **********************************************/
 
 #include "FPSCamera.h"
+#include "RgbImage.h"
 #include <stdio.h>
 #define FAR_CLIPPING_PLANE 1000
 #define NEAR_CLIPPING_PLANE 0.01
@@ -33,6 +34,136 @@ int windowWidth = 640;
 int windowHeight = 480;
 GLfloat xCenter = (GLfloat)windowWidth/2;
 GLfloat yCenter = (GLfloat)windowHeight/2;
+
+RgbImage img;
+GLuint textures[2];
+
+void initLights(){
+	//GLfloat luzGlobalCor[4]={1.0,1.0,1.0,1.0}; 
+	//glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luzGlobalCor); //ambiente
+
+	GLfloat lightPos[4] = {0, 20, 0, 1};
+	GLfloat lightAmbColor[4] = {0.2, 0.2, 0.2, 1};
+	GLfloat lightDifColor[4] = {1, 1, 1, 1};
+	GLfloat lightSpeColor[4] = {1, 1, 1, 1};
+	
+	GLfloat lightAttCon = 1.0;
+	GLfloat lightAttLin = 0.05;
+	GLfloat lightAttQua = 0.0;
+
+	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbColor);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDifColor);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpeColor);
+	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, lightAttCon);
+	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, lightAttLin);
+	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION,lightAttQua);
+	
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+}
+
+void loadTextures() {   
+	glGenTextures(2, textures);
+
+	glBindTexture(GL_TEXTURE_2D, textures[0]);
+	img.LoadBmpFile("wood.bmp");
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
+
+	glBindTexture(GL_TEXTURE_2D, textures[1]);
+	img.LoadBmpFile("wall.bmp");
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
+}
+
+void squareMesh(int dimX, int dimY, float repeatS, float repeatT) {
+	int i, j;
+	/*
+	int x = 0;
+	GLfloat stuff[6][4] = {BLUE, RED, YELLOW, GREEN, WHITE, BLACK};
+	*/
+	glEnable(GL_TEXTURE_2D);
+	glColor4f(WHITE);
+	if(!dimX) dimX = 1;
+	if(!dimY) dimY = 1;
+	glPushMatrix();
+		glTranslatef(-0.5,-0.5,0);  // meio do poligono 
+		glBegin(GL_QUADS);
+			for (i=0;i<dimY;i++) {
+				for (j=0;j<dimX;j++) {
+					/*
+					glColor4fv(stuff[x]);
+					x = (x+1) % 6;
+					*/
+					glTexCoord2f(j*repeatS/dimX, i*repeatT/dimY);
+					glVertex3d((float)j/dimX,(float)i/dimY,0);
+
+					glTexCoord2f((j+1)*repeatS/dimX,i*repeatT/dimY);
+					glVertex3d((float)(j+1)/dimX,(float)i/dimY,0);
+
+					glTexCoord2f((j+1)*repeatS/dimX,(i+1)*repeatT/dimY);
+					glVertex3d((float)(j+1)/dimX,(float)(i+1)/dimY,0);
+
+					glTexCoord2f(j*repeatS/dimX,(i+1)*repeatT/dimY);
+					glVertex3d((float)j/dimX,(float)(i+1)/dimY,0);
+				}
+			}
+		glEnd();
+	glPopMatrix();
+	glDisable(GL_TEXTURE_2D);
+}
+
+void cubeMesh(float scaleX, float scaleY, float scaleZ, float dim, GLuint texture, float repeatS, float repeatT){
+	int x = scaleX * dim;
+	int y = scaleY * dim;
+	int z = scaleZ * dim;
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glPushMatrix();
+		glScalef(scaleX, scaleY, scaleZ);
+		glPushMatrix();
+			glTranslatef(0, 0, 0.5);
+			squareMesh(x, y, repeatS, repeatT);		//front
+			glTranslatef(0, 0, -1);
+			glRotatef(180, 0, 1, 0);
+			squareMesh(x, y, repeatS, repeatT);		//back
+		glPopMatrix();
+		glPushMatrix();
+			glTranslatef(0.5, 0, 0);
+			glRotatef(90, 0, 1, 0);	
+			squareMesh(z, y, repeatS, repeatT);		//right
+		glPopMatrix();
+		glPushMatrix();
+			glTranslatef(-0.5, 0, 0);
+			glRotatef(-90, 0, 1, 0);
+			squareMesh(z, y, repeatS, repeatT);		//left
+		glPopMatrix();
+		glPushMatrix();
+			glTranslatef(0, -0.5, 0);
+			glRotatef(90, 1, 0, 0);
+			squareMesh(x, z, repeatS, repeatT);		//bottom
+		glPopMatrix();
+		glPushMatrix();
+			glTranslatef(0, 0.5, 0);
+			glRotatef(-90, 1, 0, 0);
+			squareMesh(x, z, repeatS, repeatT);		//top
+		glPopMatrix();
+	glPopMatrix();
+}
 
 void drawAxis() {
 	// Eixo X
@@ -57,98 +188,25 @@ void drawAxis() {
 	glEnd();
 }
 
-void squareMesh(int dim){
-	int i, j, x = 0;
-	GLfloat stuff[6][4] = {BLUE, RED, YELLOW, GREEN, WHITE, BLACK};
-	glPushMatrix();
-		glTranslatef(-0.5,-0.5,0);  // meio do poligono 
-		glBegin(GL_QUADS);
-			
-			for (i=0;i<dim;i++) {
-				for (j=0;j<dim;j++) {
-					glColor4fv(stuff[x]);
-					x = (x+1) % 6;
-					//glNormal(0,1,0);
-					//glTexCoord2f((float)j/dim,(float)i/dim);
-					glVertex3d((float)j/dim,(float)i/dim,0);
-					//glTexCoord2f((float)(j+1)/dim,(float)i/dim);
-					glVertex3d((float)(j+1)/dim,(float)i/dim,0);
-					//glTexCoord2f((float)(j+1)/dim,(float)(i+1)/dim);
-					glVertex3d((float)(j+1)/dim,(float)(i+1)/dim,0);
-					//glTexCoord2f((float)j/dim,(float)(i+1)/dim);
-					glVertex3d((float)j/dim,(float)(i+1)/dim,0);
-				}
-			}
-		glEnd();
-	glPopMatrix();
-}
-
-void cubeMesh(float scaleX, float scaleY, float scaleZ, int dim){
-	glPushMatrix();
-		glScalef(scaleX, scaleY, scaleZ);
-		glPushMatrix();
-			glTranslatef(0, 0, 0.5);
-			squareMesh(dim);		//front
-			glTranslatef(0, 0, -1);
-			glRotatef(180, 0, 1, 0);
-			squareMesh(dim);		//back
-		glPopMatrix();
-		glPushMatrix();
-			glTranslatef(0.5, 0, 0);
-			glRotatef(90, 0, 1, 0);	
-			squareMesh(dim);		//right
-		glPopMatrix();
-		glPushMatrix();
-			glTranslatef(-0.5, 0, 0);
-			glRotatef(-90, 0, 1, 0);
-			squareMesh(dim);		//left
-		glPopMatrix();
-		glPushMatrix();
-			glTranslatef(0, -0.5, 0);
-			glRotatef(90, 1, 0, 0);
-			squareMesh(dim);		//bottom
-		glPopMatrix();
-		glPushMatrix();
-			glTranslatef(0, 0.5, 0);
-			glRotatef(-90, 1, 0, 0);
-			squareMesh(dim);		//top
-		glPopMatrix();
-	glPopMatrix();
-}
-
 void drawWalls() {
 	glColor4f(WHITE);
-	/*
+	
 	glPushMatrix();
-		glScalef(50, 1, 48);
-		glutWireCube(1);	//chao
-
+		cubeMesh(50, 1, 48, 0.5, textures[0], 4, 4); //chao
 		glTranslatef(0, 29, 0);
-		glutWireCube(1);	//teto
+		//cubeMesh(50, 1, 48, 0.5, textures[1], 8, 8); //teto
 	glPopMatrix();
-	*/
-	glPushMatrix();
-		cubeMesh(50, 1, 48, 25);
-
-		glTranslatef(0, 29, 0);
-		cubeMesh(50, 1, 48, 25);	//teto
-	glPopMatrix();
-
 	glPushMatrix();
 		glTranslatef(25.5, 14.5, 0);
-		glScalef(1,30,50);
-		glutWireCube(1);	//parede da porta
-
+		cubeMesh(1, 30, 50, 0.5, textures[1], 8, 8); //parede da porta
 		glTranslatef(-51, 0, 0);
-		glutWireCube(1);	//parede da janela
+		cubeMesh(1, 30, 50, 0.5, textures[1], 8, 8); //parede da janela
 	glPopMatrix();
 	glPushMatrix();
 		glTranslatef(0, 14.5, 24.5);
-		glScalef(50, 30, 1);
-		glutWireCube(1);	//parede do computador
-
+		cubeMesh(50, 30, 1, 0.5, textures[1], 8, 8);	//parede do computador
 		glTranslatef(0, 0, -49);
-		glutWireCube(1);	//parede da cabeceira
+		cubeMesh(50, 30, 1, 0.5, textures[1], 8, 8);	//parede da cabeceira
 	glPopMatrix();
 }
 
@@ -362,7 +420,11 @@ void display(void) {
 	drawTable();
 	drawObjects();
 
-	cubeMesh(1, 1, 1, 5);
+	glPushMatrix();
+		glTranslatef(0, -10, 10);
+		//glutWireCube(1);
+	glPopMatrix();
+	//cubeMesh(40, 1, 40, 1, textures[1], 4, 4);
 
 	glutSwapBuffers();
 }
@@ -465,6 +527,8 @@ void initialization() {
 	glCullFace(GL_BACK);		//Mostrar so as da frente
 
 	glutSetCursor(GLUT_CURSOR_NONE);
+	loadTextures();
+	initLights();
 }
 
 int main(int argc, char **argv) {
