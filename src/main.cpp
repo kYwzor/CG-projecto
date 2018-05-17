@@ -39,16 +39,17 @@ RgbImage img;
 GLuint textures[2];
 
 void initLights(){
-	//GLfloat luzGlobalCor[4]={1.0,1.0,1.0,1.0}; 
-	//glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luzGlobalCor); //ambiente
+	GLfloat luzGlobalCor[4]={0.1,0.1,0.1,0.1}; 
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luzGlobalCor); //ambiente
+	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
 
 	GLfloat lightPos[4] = {0, 20, 0, 1};
-	GLfloat lightAmbColor[4] = {0.2, 0.2, 0.2, 1};
+	GLfloat lightAmbColor[4] = {0.1, 0.1, 0.1, 1};
 	GLfloat lightDifColor[4] = {1, 1, 1, 1};
 	GLfloat lightSpeColor[4] = {1, 1, 1, 1};
 	
-	GLfloat lightAttCon = 1.0;
-	GLfloat lightAttLin = 0.05;
+	GLfloat lightAttCon = 0.0;
+	GLfloat lightAttLin = 0.005;
 	GLfloat lightAttQua = 0.0;
 
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
@@ -58,9 +59,11 @@ void initLights(){
 	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, lightAttCon);
 	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, lightAttLin);
 	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION,lightAttQua);
-	
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
+	/*
+	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 90);
+	GLfloat dir[] = {0, -1, 0};
+	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, dir);
+	*/
 }
 
 void loadTextures() {   
@@ -98,7 +101,6 @@ void squareMesh(int dimX, int dimY, float repeatS, float repeatT) {
 	GLfloat stuff[6][4] = {BLUE, RED, YELLOW, GREEN, WHITE, BLACK};
 	*/
 	glEnable(GL_TEXTURE_2D);
-	glColor4f(WHITE);
 	if(!dimX) dimX = 1;
 	if(!dimY) dimY = 1;
 	glPushMatrix();
@@ -189,12 +191,21 @@ void drawAxis() {
 }
 
 void drawWalls() {
-	glColor4f(WHITE);
-	
+	GLfloat brown[] = {0.385, 0.273, 0.212, 1};
+	GLfloat ones[] = {1, 1, 1, 1};
+	GLfloat sh = 0.8 *128;
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brown);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &sh);
+	cubeMesh(50, 1, 48, 0.5, textures[0], 4, 4); //chao
+
+	sh = 0.8 * 128;
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &sh);
 	glPushMatrix();
-		cubeMesh(50, 1, 48, 0.5, textures[0], 4, 4); //chao
 		glTranslatef(0, 29, 0);
-		//cubeMesh(50, 1, 48, 0.5, textures[1], 8, 8); //teto
+		cubeMesh(50, 1, 48, 0.5, textures[1], 8, 8); //teto
 	glPopMatrix();
 	glPushMatrix();
 		glTranslatef(25.5, 14.5, 0);
@@ -409,10 +420,11 @@ void display(void) {
 
 	applyKeys();
 	camera.render();
-
+	initLights();
 	drawAxis();
-
+	glEnable(GL_LIGHTING);
 	drawWalls();
+	glDisable(GL_LIGHTING);
 	drawWardrobe();
 	drawNightstand();
 	drawBed();
@@ -420,9 +432,14 @@ void display(void) {
 	drawTable();
 	drawObjects();
 
+	/*
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+	glEnable(GL_COLOR_MATERIAL);
+	*/
+
 	glPushMatrix();
 		glTranslatef(0, -10, 10);
-		//glutWireCube(1);
+		glutWireCube(1);
 	glPopMatrix();
 	//cubeMesh(40, 1, 40, 1, textures[1], 4, 4);
 
@@ -527,8 +544,11 @@ void initialization() {
 	glCullFace(GL_BACK);		//Mostrar so as da frente
 
 	glutSetCursor(GLUT_CURSOR_NONE);
+
+	glEnable(GL_NORMALIZE);
+	glEnable(GL_LIGHT0);
+
 	loadTextures();
-	initLights();
 }
 
 int main(int argc, char **argv) {
