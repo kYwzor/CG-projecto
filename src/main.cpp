@@ -52,7 +52,7 @@ void initLights(){
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, ones);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, ones);
 	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0);
-	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.006);
+	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.008);
 	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION,0);
 }
 
@@ -444,9 +444,7 @@ void drawTable(){
 
 	glPushMatrix();
 		glTranslatef(0, 8, 19);
-		//glScalef(15, 1, 10);
-		//glutWireCube(1);	//tampo
-		cubeMesh(15, 1, 10, 1, 1, 1, textures[5], textures[5], textures[4]);
+		cubeMesh(15, 1, 10, 1, 1, 1, textures[5], textures[5], textures[4]); //tampo
 	glPopMatrix();
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING);
@@ -459,7 +457,7 @@ void drawObjects(){
 	glColor4f(GREEN);
 	glPushMatrix();
 		glTranslatef(0, 13, 22);
-		glScalef(10, 7, 2);
+		glScalef(10, 7, 1.5);
 		glutWireCube(1);	//monitor
 	glPopMatrix();
 	glPushMatrix();
