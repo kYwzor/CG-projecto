@@ -6,6 +6,7 @@
 #include <GL/glut.h>
 
 GLfloat ones[] = {1, 1, 1, 1};
+GLfloat halves[] = {0.5, 0.5, 0.5, 1};
 GLfloat zeros[] = {0, 0, 0, 1};
 
 
