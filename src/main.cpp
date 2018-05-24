@@ -46,24 +46,52 @@ void initLights(){
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luzGlobalCor); //ambiente
 	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
 	
-	GLfloat lightAmbColor[] = {0.1, 0.1, 0.1, 1};
 	
-	glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbColor);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, ones);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, ones);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, ones);
-	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0);
-	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.008);
+	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.1);
+	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.1);
 	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION,0);
+	glEnable(GL_LIGHT0);
+
+	GLfloat blue[] = {0, 0, 1, 1};
+	glLightfv(GL_LIGHT1, GL_AMBIENT, zeros);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, blue);
+	glLightfv(GL_LIGHT1, GL_SPECULAR, blue);
+	glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 0);
+	glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.3);
+	glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0);
+	glEnable(GL_LIGHT1);
+
+	GLfloat yellowish[] = {1, 0.8, 0, 1};
+	glLightfv(GL_LIGHT2, GL_AMBIENT, zeros);
+	glLightfv(GL_LIGHT2, GL_DIFFUSE, yellowish);
+	glLightfv(GL_LIGHT2, GL_SPECULAR, yellowish);
+	glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 0);
+	glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, 0.3);
+	glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 0);
+	glEnable(GL_LIGHT2);
+
 }
 
 void updateLights(){
-	GLfloat lightPos[4] = {0, 20, 0, 1};
-	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
-	/*
-	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 90);
-	GLfloat dir[] = {0, -1, 0};
-	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, dir);
-	*/
+	GLfloat light0Pos[4] = {0, 20, 0, 1};
+	glLightfv(GL_LIGHT0, GL_POSITION, light0Pos);
+	
+	GLfloat light1Pos[4] = {0, 13, 22, 1};
+	glLightfv(GL_LIGHT1, GL_POSITION, light1Pos);
+	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 90);
+	GLfloat dir[] = {0, 0, -1};
+	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, dir);
+
+	glPushMatrix();
+		glTranslatef(-6, 10, -20);
+		glutWireCube(1);
+	glPopMatrix();
+	GLfloat light2Pos[4] = {-6, 10, -20, 1};
+	glLightfv(GL_LIGHT2, GL_POSITION, light2Pos);
+	
 }
 
 void loadTextures() {   
@@ -224,6 +252,8 @@ void cubeMesh(float scaleX, float scaleY, float scaleZ, float dim, float repeatS
 			glEnable(GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D, tex1);
 		}
+
+		glNormal3f(0, 0, 1);
 		glPushMatrix();
 			glTranslatef(0, 0, 0.5);
 			squareMesh(x, y, repeatS, repeatT);		//front
@@ -239,7 +269,7 @@ void cubeMesh(float scaleX, float scaleY, float scaleZ, float dim, float repeatS
 		}
 		glPushMatrix();
 			glTranslatef(0.5, 0, 0);
-			glRotatef(90, 0, 1, 0);	
+			glRotatef(90, 0, 1, 0);
 			squareMesh(z, y, repeatS, repeatT);		//right
 		glPopMatrix();
 		glPushMatrix();
@@ -299,7 +329,7 @@ void drawWalls() {
 
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
-	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.6 * 128);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.3 * 128);
 	glPushMatrix();
 		glTranslatef(0, 29, 0);
 		cubeMesh(50, 1, 48, 0.5, 8, 8, textures[1], textures[1], textures[1]); //teto
@@ -426,7 +456,7 @@ void drawBed(){
 	
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
-	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.3 * 128);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.1 * 128);
 	glPushMatrix();
 		glTranslatef(-17, 6.5, -10.75);
 		cubeMesh(12, 1.5, 21.5, 1, 2, 2, textures[6], textures[6], textures[6]);	//colchao
@@ -700,7 +730,6 @@ void initialization() {
 
 	glEnable(GL_NORMALIZE);
 	initLights();
-	glEnable(GL_LIGHT0);
 
 	loadTextures();
 }
