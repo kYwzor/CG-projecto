@@ -37,12 +37,13 @@ GLfloat xCenter = (GLfloat)windowWidth/2;
 GLfloat yCenter = (GLfloat)windowHeight/2;
 
 RgbImage img;
-GLuint textures[9];
+GLuint textures[10];
 
 
 
 void initLights(){
-	GLfloat luzGlobalCor[]={0.1,0.1,0.1,1}; 
+	//GLfloat luzGlobalCor[]={0.1,0.1,0.1,1}; 
+	GLfloat luzGlobalCor[]={0,0,0,1}; 
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luzGlobalCor); //ambiente
 	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
 	
@@ -50,25 +51,25 @@ void initLights(){
 	glLightfv(GL_LIGHT0, GL_AMBIENT, ones);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, ones);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, ones);
-	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.1);
+	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.2);
 	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.1);
-	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION,0);
+	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0);
 	glEnable(GL_LIGHT0);
 
 	GLfloat blue[] = {0, 0, 1, 1};
-	glLightfv(GL_LIGHT1, GL_AMBIENT, zeros);
+	glLightfv(GL_LIGHT1, GL_AMBIENT, blue);
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, blue);
 	glLightfv(GL_LIGHT1, GL_SPECULAR, blue);
-	glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 0);
-	glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.3);
-	glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0);
+	glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 1);
+	glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0);
+	glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.02);
 	glEnable(GL_LIGHT1);
 
 	GLfloat yellowish[] = {1, 0.8, 0, 1};
-	glLightfv(GL_LIGHT2, GL_AMBIENT, zeros);
+	glLightfv(GL_LIGHT2, GL_AMBIENT, yellowish);
 	glLightfv(GL_LIGHT2, GL_DIFFUSE, yellowish);
 	glLightfv(GL_LIGHT2, GL_SPECULAR, yellowish);
-	glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 0);
+	glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1);
 	glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, 0.3);
 	glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 0);
 	glEnable(GL_LIGHT2);
@@ -79,23 +80,23 @@ void updateLights(){
 	GLfloat light0Pos[4] = {0, 20, 0, 1};
 	glLightfv(GL_LIGHT0, GL_POSITION, light0Pos);
 	
-	GLfloat light1Pos[4] = {0, 13, 22, 1};
+	GLfloat light1Pos[4] = {0, 13, 23, 1};
 	glLightfv(GL_LIGHT1, GL_POSITION, light1Pos);
-	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 90);
 	GLfloat dir[] = {0, 0, -1};
 	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, dir);
+	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 75);
 
 	glPushMatrix();
-		glTranslatef(-6, 10, -20);
+		glTranslatef(-6, 12, -20);
 		glutWireCube(1);
 	glPopMatrix();
-	GLfloat light2Pos[4] = {-6, 10, -20, 1};
+	GLfloat light2Pos[4] = {-6, 12, -20, 1};
 	glLightfv(GL_LIGHT2, GL_POSITION, light2Pos);
 	
 }
 
-void loadTextures() {   
-	glGenTextures(9, textures);
+void loadTextures() {
+	glGenTextures(10, textures);
 
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
 	img.LoadBmpFile("textures/woodfloor.bmp");
@@ -146,8 +147,8 @@ void loadTextures() {
 		img.ImageData());
 
 	glBindTexture(GL_TEXTURE_2D, textures[4]);
-	img.LoadBmpFile("textures/lightwood.bmp");
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	img.LoadBmpFile("textures/tabletop.bmp");
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -158,7 +159,7 @@ void loadTextures() {
 		img.ImageData());
 
 	glBindTexture(GL_TEXTURE_2D, textures[5]);
-	img.LoadBmpFile("textures/lightwoodturned.bmp");
+	img.LoadBmpFile("textures/tableside.bmp");
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -195,6 +196,18 @@ void loadTextures() {
 
 	glBindTexture(GL_TEXTURE_2D, textures[8]);
 	img.LoadBmpFile("textures/can.bmp");
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
+
+	glBindTexture(GL_TEXTURE_2D, textures[9]);
+	img.LoadBmpFile("textures/screen.bmp");
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -332,19 +345,19 @@ void drawWalls() {
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.3 * 128);
 	glPushMatrix();
 		glTranslatef(0, 29, 0);
-		cubeMesh(50, 1, 48, 0.5, 8, 8, textures[1], textures[1], textures[1]); //teto
+		cubeMesh(50, 1, 48, 0.5, 3, 3, textures[1], textures[1], textures[1]); //teto
 	glPopMatrix();
 	glPushMatrix();
 		glTranslatef(25.5, 14.5, 0);
-		cubeMesh(1, 30, 50, 0.5, 8, 8, textures[1], textures[1], textures[1]); //parede da porta
+		cubeMesh(1, 30, 50, 0.5, 3, 3, textures[1], textures[1], textures[1]); //parede da porta
 		glTranslatef(-51, 0, 0);
-		cubeMesh(1, 30, 50, 0.5, 8, 8, textures[1], textures[1], textures[1]); //parede da janela
+		cubeMesh(1, 30, 50, 0.5, 3, 3, textures[1], textures[1], textures[1]); //parede da janela
 	glPopMatrix();
 	glPushMatrix();
 		glTranslatef(0, 14.5, 24.5);
-		cubeMesh(50, 30, 1, 0.5, 8, 8, textures[1], textures[1], textures[1]);	//parede do computador
+		cubeMesh(50, 30, 1, 0.5, 3, 3, textures[1], textures[1], textures[1]);	//parede do computador
 		glTranslatef(0, 0, -49);
-		cubeMesh(50, 30, 1, 0.5, 8, 8, textures[1], textures[1], textures[1]);	//parede da cabeceira
+		cubeMesh(50, 30, 1, 0.5, 3, 3, textures[1], textures[1], textures[1]);	//parede da cabeceira
 	glPopMatrix();
 }
 
@@ -490,7 +503,7 @@ void drawTable(){
 	//pernas
 	glEnable(GL_LIGHTING);
 	glEnable(GL_TEXTURE_2D);
-	GLfloat brown[] = {0.423, 0.3, 0.234, 1};
+	GLfloat brown[] = {0.846, 0.6, 0.468, 1};
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brown);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.4 *128);
@@ -540,11 +553,15 @@ void drawTable(){
 }
 
 void drawObjects(){
+	glEnable(GL_LIGHTING);
 	glColor4f(GREEN);
+	
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.8 * 128);
 	glPushMatrix();
 		glTranslatef(0, 13, 22);
-		glScalef(10, 7, 1.5);
-		glutWireCube(1);	//monitor
+		cubeMesh(10, 7, 1.5, 1, 1, 1, textures[9], textures[9], textures[9]); //monitor
 	glPopMatrix();
 	glPushMatrix();
 		glTranslatef(0, 9, 22);
@@ -552,7 +569,7 @@ void drawObjects(){
 		glutWireCube(1);	//apoio
 	glPopMatrix();
 
-	glEnable(GL_LIGHTING);
+	
 	
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
