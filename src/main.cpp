@@ -37,7 +37,7 @@ GLfloat xCenter = (GLfloat)windowWidth/2;
 GLfloat yCenter = (GLfloat)windowHeight/2;
 
 RgbImage img;
-GLuint textures[10];
+GLuint textures[13];
 
 
 
@@ -80,11 +80,11 @@ void updateLights(){
 	GLfloat light0Pos[4] = {0, 20, 0, 1};
 	glLightfv(GL_LIGHT0, GL_POSITION, light0Pos);
 	
-	GLfloat light1Pos[4] = {0, 13, 23, 1};
+	GLfloat light1Pos[4] = {0, 13, 22.5, 1};
 	glLightfv(GL_LIGHT1, GL_POSITION, light1Pos);
 	GLfloat dir[] = {0, 0, -1};
 	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, dir);
-	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 75);
+	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 80);
 
 	glPushMatrix();
 		glTranslatef(-6, 12, -20);
@@ -96,7 +96,7 @@ void updateLights(){
 }
 
 void loadTextures() {
-	glGenTextures(10, textures);
+	glGenTextures(13, textures);
 
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
 	img.LoadBmpFile("textures/woodfloor.bmp");
@@ -217,6 +217,42 @@ void loadTextures() {
 	img.GetNumCols(),
 		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
 		img.ImageData());
+
+	glBindTexture(GL_TEXTURE_2D, textures[10]);
+	img.LoadBmpFile("textures/screenside.bmp");
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
+
+	glBindTexture(GL_TEXTURE_2D, textures[11]);
+	img.LoadBmpFile("textures/cubemouse.bmp");
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
+
+	glBindTexture(GL_TEXTURE_2D, textures[12]);
+	img.LoadBmpFile("textures/cubemouseside.bmp");
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
 }
 
 void squareMesh(int dimX, int dimY, float repeatS, float repeatT) {
@@ -260,7 +296,7 @@ void cubeMesh(float scaleX, float scaleY, float scaleZ, float dim, float repeatS
 	int z = scaleZ * dim;
 	glPushMatrix();
 		glScalef(scaleX, scaleY, scaleZ);
-
+		
 		if(tex1){
 			glEnable(GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D, tex1);
@@ -561,15 +597,19 @@ void drawObjects(){
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.8 * 128);
 	glPushMatrix();
 		glTranslatef(0, 13, 22);
-		cubeMesh(10, 7, 1.5, 1, 1, 1, textures[9], textures[9], textures[9]); //monitor
+		cubeMesh(10, 7, 1, 1, 1, 1, textures[9], textures[10], textures[10]); //monitor
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(0, 13, 22.51);
+		glScalef(10, 7, 1);
+		glEnable(GL_TEXTURE_2D);
+		squareMesh(10, 7, 20, 1);	//back
+		glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
 	glPushMatrix();
 		glTranslatef(0, 9, 22);
-		glScalef(7, 1, 0.5);
-		glutWireCube(1);	//apoio
+		cubeMesh(7, 1, 0.5, 1, 10, 10, textures[10], textures[10], textures[10]);
 	glPopMatrix();
-
-	
 	
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
@@ -588,17 +628,21 @@ void drawObjects(){
 		glTranslatef(2, 8.6, 19.375);
 		cubeMesh(0.05, 0.05, 4.75, 1, 1, 1, 0, 0, 0); //fio teclado
 	glPopMatrix();
-	glDisable(GL_LIGHTING);
-	glPushMatrix();
-		glTranslatef(-3, 8.75, 17);
-		glScalef(1, 0.5, 1.5);
-		glutWireCube(1);	//rato
-	glPopMatrix();
 	glPushMatrix();
 		glTranslatef(-3, 8.6, 19.75);
-		glScalef(0.05, 0.05, 4);
-		glutWireCube(1);	//fio rato
+		cubeMesh(0.05, 0.05, 4, 1, 1, 1, 0, 0, 0); //fio rato
 	glPopMatrix();
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.5 * 128);
+	glPushMatrix();
+		glTranslatef(-3, 8.625, 17);
+		glRotatef(180, 0 , 1, 0);
+		//glScalef(1, 0.25, 1.5);
+		//glutWireCube(1);	//rato
+		cubeMesh(1, 0.25, 1.5, 1, 1, 1, textures[12], textures[12], textures[11]);
+	glPopMatrix();
+	glDisable(GL_LIGHTING);
 	glPushMatrix();
 		glTranslatef(6, 9.5, 18);
 		//glutWireTeapot(1);	//TODO: Chavena cilindrica
