@@ -37,8 +37,7 @@ GLfloat xCenter = (GLfloat)windowWidth/2;
 GLfloat yCenter = (GLfloat)windowHeight/2;
 
 RgbImage img;
-GLuint textures[15];
-
+GLuint textures[17];
 
 
 void initLights(){
@@ -54,7 +53,7 @@ void initLights(){
 	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.6);
 	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.1);
 	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0);
-	glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHT0);	//luz teto
 
 	GLfloat blue[] = {0, 0, 1, 1};
 	glLightfv(GL_LIGHT1, GL_AMBIENT, blue);
@@ -63,22 +62,22 @@ void initLights(){
 	glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 1);
 	glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0);
 	glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.02);
-	glEnable(GL_LIGHT1);
+	glEnable(GL_LIGHT1);	//luz computador
 
-	GLfloat yellowish[] = {1, 0.8, 0, 1};
+	GLfloat yellowish[] = {1, 0.7, 0, 1};
 	glLightfv(GL_LIGHT2, GL_AMBIENT, yellowish);
 	glLightfv(GL_LIGHT2, GL_DIFFUSE, yellowish);
 	glLightfv(GL_LIGHT2, GL_SPECULAR, yellowish);
 	glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1);
 	glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, 0.3);
 	glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 0);
-	glEnable(GL_LIGHT2);
+	glEnable(GL_LIGHT2);	//luz vela
 
 	glEnable(GL_LIGHTING);
 }
 
 void updateLights(){
-	GLfloat light0Pos[4] = {0, 20, 0, 1};
+	GLfloat light0Pos[4] = {0, 21, 0, 1};
 	glLightfv(GL_LIGHT0, GL_POSITION, light0Pos);
 	
 	GLfloat light1Pos[4] = {0, 13, 22.5, 1};
@@ -88,16 +87,16 @@ void updateLights(){
 	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 80);
 
 	glPushMatrix();
-		glTranslatef(-6, 12, -20);
+		glTranslatef(-6, 10.5, -20);
 		glutWireCube(1);
 	glPopMatrix();
-	GLfloat light2Pos[4] = {-6, 12, -20, 1};
+	GLfloat light2Pos[4] = {-6, 10.5, -20, 1};
 	glLightfv(GL_LIGHT2, GL_POSITION, light2Pos);
 	
 }
 
 void loadTextures() {
-	glGenTextures(15, textures);
+	glGenTextures(17, textures);
 
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
 	img.LoadBmpFile("textures/woodfloor.bmp");
@@ -278,6 +277,30 @@ void loadTextures() {
 	img.GetNumCols(),
 		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
 		img.ImageData());
+
+	glBindTexture(GL_TEXTURE_2D, textures[15]);
+	img.LoadBmpFile("textures/lampshade.bmp");
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
+
+	glBindTexture(GL_TEXTURE_2D, textures[16]);
+	img.LoadBmpFile("textures/wax.bmp");
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
 }
 
 void squareMesh(int dimX, int dimY, float repeatS, float repeatT) {
@@ -413,9 +436,52 @@ void drawWalls() {
 	glPushMatrix();
 		glTranslatef(25.5, 14.5, 0);
 		cubeMesh(1, 30, 50, 0.5, 3, 3, textures[1], textures[1], textures[1]); //parede da porta
-		glTranslatef(-51, 0, 0);
-		cubeMesh(1, 30, 50, 0.5, 3, 3, textures[1], textures[1], textures[1]); //parede da janela
+		//glTranslatef(-51, 0, 0);
+		//cubeMesh(1, 30, 50, 0.5, 3, 3, textures[1], textures[1], textures[1]); //parede da janela
 	glPopMatrix();
+	
+	// parede com buraco para janela
+	glPushMatrix();
+		glTranslatef(-25.5, 14.5, 20);
+		cubeMesh(1, 30, 10, 0.5, 1, 3, textures[1], textures[1], textures[1]);		//esquerda da janela
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(-25.5, 27, 7.5);
+		cubeMesh(1, 5, 15, 0.5, 0.9, 0.5, textures[1], textures[1], textures[1]);	//cima da janela
+	glPopMatrix();
+		glPushMatrix();
+		glTranslatef(-25.5, 4.5, 7.5);
+		cubeMesh(1, 10, 15, 0.5, 0.9, 1, textures[1], textures[1], textures[1]);	//baixo da janela
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(-25.5, 14.5, -12.5);
+		cubeMesh(1, 30, 25, 0.5, 1.5, 3, textures[1], textures[1], textures[1]);	//direita da janela
+	glPopMatrix();
+
+	//janela
+	glPushMatrix();
+		glTranslatef(-25.5, 17, 14.5);
+		cubeMesh(3, 15, 1, 1, 1, 1, 0, 0, 0);	//armacao esquerda
+		glTranslatef(0, 0, -14);
+		cubeMesh(3, 15, 1, 1, 1, 1, 0, 0, 0);	//armacao direita
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(-25.5, 21, 7.5);
+		cubeMesh(2, 7, 1, 1, 1, 1, 0, 0, 0);	//armacao meio cima
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(-25.5, 13, 7.5);
+		cubeMesh(2, 7, 1, 1, 1, 1, 0, 0, 0);	//armacao meio baixo
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(-25.5, 24, 7.5);
+		cubeMesh(3, 1, 13, 1, 1, 1, 0, 0, 0);	//armacao cima
+		glTranslatef(0, -7, 0);
+		cubeMesh(2, 1, 13, 1, 1, 1, 0, 0, 0);	//armacao meio
+		glTranslatef(0, -7, 0);
+		cubeMesh(3, 1, 13, 1, 1, 1, 0, 0, 0);	//armacao baixo
+	glPopMatrix();
+
 	glPushMatrix();
 		glTranslatef(0, 14.5, 24.5);
 		cubeMesh(50, 30, 1, 0.5, 3, 3, textures[1], textures[1], textures[1]);	//parede do computador
@@ -490,16 +556,49 @@ void drawNightstand() {
 	
 	glPushMatrix();
 		glTranslatef(-4, 3.5, -20);
-		//glScalef(10, 6, 6);
-		cubeMesh(10, 6, 6, 1, 1, 1, textures[7], textures[7], textures[7]);
+		cubeMesh(10, 6, 6, 1, 1, 1, textures[7], textures[7], textures[7]);	//mesa de cabeceira
 	glPopMatrix();
-	
+
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, halves);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, halves);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.8 * 128);
+	GLUquadric* quad = gluNewQuadric();
+	glPushMatrix();
+		glTranslatef(-6, 6.5, -20);
+		glRotatef(-90, 1, 0, 0);
+		gluCylinder(quad, 1, 1, 0.5, 12, 12);	//base da vela
+		glTranslatef(0, 0, 0.5);
+		gluDisk(quad, 0, 1, 12, 1);		//parte de cima
+	glPopMatrix();
+	gluDeleteQuadric(quad);
+
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128);
 	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, textures[16]);
+	quad = gluNewQuadric();
+	gluQuadricTexture(quad, GLU_TRUE);
+	glPushMatrix();
+		glTranslatef(-6, 7, -20);
+		glRotatef(-90, 1, 0, 0);
+		gluCylinder(quad, 0.2, 0.15, 3, 12, 12);	//vela
+		glTranslatef(0, 0, 3);
+		gluDisk(quad, 0, 0.15, 12, 1);		//parte de cima
+	glPopMatrix();
+	gluDeleteQuadric(quad);
+
+	glPushMatrix();
+		glTranslatef(-6, 10.15, -20);
+		glScalef(0.05, 0.3, 0.05);
+		glutSolidCube(1);
+	glPopMatrix();
+
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.9 * 128);
 	glBindTexture(GL_TEXTURE_2D, textures[8]);
-	GLUquadric* quad = gluNewQuadric();
+	quad = gluNewQuadric();
 	gluQuadricTexture(quad, GLU_TRUE);
 	glPushMatrix();
 		glTranslatef(-1.5, 6.5, -20);
@@ -579,7 +678,6 @@ void drawSeat(){
 }
 
 void drawTable(){
-	glColor4f(BLUE);
 	//pernas
 	glEnable(GL_TEXTURE_2D);
 	GLfloat brown[] = {0.846, 0.6, 0.468, 1};
@@ -631,8 +729,6 @@ void drawTable(){
 }
 
 void drawObjects(){
-	glColor4f(GREEN);
-	
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.8 * 128);
@@ -687,6 +783,58 @@ void drawObjects(){
 	glPopMatrix();
 }
 
+void drawCeilingLamp(){
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128);
+	GLUquadric* quad = gluNewQuadric();
+	glPushMatrix();
+		glTranslatef(0, 21, 0);
+		glScalef(0.6, 1, 0.6);
+		gluSphere(quad, 0.5, 10, 10);	//lampada
+	glPopMatrix();
+	gluDeleteQuadric(quad);
+
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, blackPlasticAmb);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, blackPlasticDif);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, blackPlasticSpec);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, blackPlasticCoef);
+	glPushMatrix();
+		glTranslatef(0, 25, 0);
+		glScalef(0.1, 7, 0.1);
+		glutSolidCube(1);	//fio
+	glPopMatrix();
+
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, halves);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, halves);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.5 * 128);
+	glPushMatrix();
+		glTranslatef(0, 21.5, 0);
+		glScalef(3.9, 0.1, 0.1);
+		glutSolidCube(1);	//armacao
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(0, 21.5, 0);
+		glScalef(0.1, 0.1, 3.9);
+		glutSolidCube(1);	//armacao
+	glPopMatrix();
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, textures[15]);
+	quad = gluNewQuadric();
+	gluQuadricTexture(quad, GLU_TRUE);
+	glPushMatrix();
+		glTranslatef(0, 20, 0);
+		glRotatef(-90, 1, 0, 0);
+		
+		gluCylinder(quad, 2, 2, 2, 12, 16);
+		gluQuadricOrientation(quad, GLU_INSIDE);
+		gluCylinder(quad, 2, 2, 2, 12, 16);
+	glPopMatrix();
+	glDisable(GL_TEXTURE_2D);
+	gluDeleteQuadric(quad);
+}
+
 void applyKeys() {
 	// Reads keyState array and moves camera accordingly
 	int i;
@@ -711,6 +859,7 @@ void display(void) {
 	drawSeat();
 	drawTable();
 	drawObjects();
+	drawCeilingLamp();
 
 	/*
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
