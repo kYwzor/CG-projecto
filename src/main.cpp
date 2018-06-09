@@ -37,7 +37,7 @@ GLfloat xCenter = (GLfloat)windowWidth/2;
 GLfloat yCenter = (GLfloat)windowHeight/2;
 
 RgbImage img;
-GLuint textures[13];
+GLuint textures[15];
 
 
 
@@ -51,7 +51,7 @@ void initLights(){
 	glLightfv(GL_LIGHT0, GL_AMBIENT, ones);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, ones);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, ones);
-	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.2);
+	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.6);
 	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.1);
 	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0);
 	glEnable(GL_LIGHT0);
@@ -74,6 +74,7 @@ void initLights(){
 	glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 0);
 	glEnable(GL_LIGHT2);
 
+	glEnable(GL_LIGHTING);
 }
 
 void updateLights(){
@@ -96,7 +97,7 @@ void updateLights(){
 }
 
 void loadTextures() {
-	glGenTextures(13, textures);
+	glGenTextures(15, textures);
 
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
 	img.LoadBmpFile("textures/woodfloor.bmp");
@@ -253,6 +254,30 @@ void loadTextures() {
 	img.GetNumCols(),
 		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
 		img.ImageData());
+
+	glBindTexture(GL_TEXTURE_2D, textures[13]);
+	img.LoadBmpFile("textures/wardrobewood.bmp");
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
+
+	glBindTexture(GL_TEXTURE_2D, textures[14]);
+	img.LoadBmpFile("textures/wardrobeframe.bmp");
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
 }
 
 void squareMesh(int dimX, int dimY, float repeatS, float repeatT) {
@@ -347,6 +372,7 @@ void cubeMesh(float scaleX, float scaleY, float scaleZ, float dim, float repeatS
 }
 
 void drawAxis() {
+	glDisable(GL_LIGHTING);
 	// Eixo X
 	glColor4f(RED);
 	glBegin(GL_LINES);
@@ -367,6 +393,7 @@ void drawAxis() {
 		glVertex3i( 0, 0, 0);
 		glVertex3i( 0, 0,10);
 	glEnd();
+	glEnable(GL_LIGHTING);
 }
 
 void drawWalls() {
@@ -398,46 +425,64 @@ void drawWalls() {
 }
 
 void drawWardrobe() {
-	glColor4f(YELLOW);
+	GLfloat brown[] = {0.846, 0.6, 0.468, 1};
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brown);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.4 *128);
 	glPushMatrix();
 		glTranslatef(24, 10.5, 18);
-		glScalef(1, 18, 11);
-		glutWireCube(1);	//lado esquerdo
+		cubeMesh(1, 18, 11, 1, 1, 1, textures[14], textures[13], textures[14]);	//lado esquerdo
 		glTranslatef(-14, 0, 0);
-		glutWireCube(1);	//lado direito
+		cubeMesh(1, 18, 11, 1, 1, 1, textures[14], textures[13], textures[14]);	//lado direito
 	glPopMatrix();
+	glMatrixMode(GL_TEXTURE);
+	glLoadIdentity();
+	glRotatef(90, 0, 0, 1);
+	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 		glTranslatef(17, 1, 18);
-		glScalef(15, 1, 11);
-		glutWireCube(1);	//baixo
+		cubeMesh(15, 1, 11, 1, 1, 1, textures[14], textures[14], textures[13]);	//baixo
 		glTranslatef(0, 19, 0);
-		glutWireCube(1);	//teto
+		cubeMesh(15, 1, 11, 1, 1, 1, textures[14], textures[14], textures[13]);	//teto
 	glPopMatrix();
+	glMatrixMode(GL_TEXTURE);
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 		glTranslatef(17, 10.5, 23);
-		glScalef(13, 18, 1);
-		glutWireCube(1);	//tras
+		cubeMesh(13, 18, 1, 1, 1, 1, textures[13], textures[14], textures[14]);	//tras
 	glPopMatrix();
 	glPushMatrix();
-		glTranslatef(20.25, 10.5, 13);
-		glScalef(6.5, 18, 1);
-		glutWireCube(1);	//porta esquerda
+		glTranslatef(20.35, 10.5, 13);
+		cubeMesh(6.3, 18, 1, 1, 1, 1, textures[13], textures[14], textures[14]);	//porta esquerda
 	glPopMatrix();
 	glPushMatrix();
-		glTranslatef(13.75, 10.5, 13);
-		glScalef(6.5, 18, 1);
-		glutWireCube(1);	//porta direita
+		glTranslatef(13.65, 10.5, 13);
+		cubeMesh(6.3, 18, 1, 1, 1, 1, textures[13], textures[14], textures[14]);	//porta direita
 	glPopMatrix();
+	
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, textures[14]);
+	GLUquadric* quad = gluNewQuadric();
+	gluQuadricTexture(quad, GLU_TRUE);
+	glMatrixMode(GL_TEXTURE);
+	glLoadIdentity();
+	glRotatef(90, 0, 0, 1);
+	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
-		glTranslatef(18, 9, 12);
-		glutWireSphere(0.5, 6, 6);	//macaneta esquerda
+		glTranslatef(18, 10.5, 12);
+		gluSphere(quad, 0.5, 10, 10);	//macaneta esquerda
 		glTranslatef(-2, 0, 0);
-		glutWireSphere(0.5, 6, 6);	//macaneta direita
+		gluSphere(quad, 0.5, 10, 10);	//macaneta direita
 	glPopMatrix();
+	glMatrixMode(GL_TEXTURE);
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	gluDeleteQuadric(quad);
+	glDisable(GL_TEXTURE_2D);
 }
 
 void drawNightstand() {
-	glEnable(GL_LIGHTING);
 	GLfloat brown[] = {0.6, 0.4, 0.3, 1};
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brown);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
@@ -472,12 +517,9 @@ void drawNightstand() {
 		gluDisk(quad, 0, 0.5, 12, 1);		//parte de cima
 	glPopMatrix();
 	gluDeleteQuadric(quad);
-
-	glDisable(GL_LIGHTING);
 }
 
 void drawBed(){
-	glEnable(GL_LIGHTING);
 	GLfloat brown[] = {0.423, 0.3, 0.234, 1};
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brown);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
@@ -510,34 +552,35 @@ void drawBed(){
 		glTranslatef(-17, 6.5, -10.75);
 		cubeMesh(12, 1.5, 21.5, 1, 2, 2, textures[6], textures[6], textures[6]);	//colchao
 	glPopMatrix();
-	glDisable(GL_LIGHTING);
 }
 
 void drawSeat(){
-	glColor4f(RED);
+	GLfloat brown[] = {0.846, 0.6, 0.468, 1};
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brown);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.4 *128);
+
 	glPushMatrix();
 		//pernas da cadeira
-		glTranslatef(-3, 2.5, 12);
-		glScalef(1, 4, 1);
-		glutWireCube(1);
-		glTranslatef(6, 0, 0);
-		glutWireCube(1);
+		glTranslatef(-2.5, 2.5, 12);
+		//glScalef(1, 4, 1);
+		cubeMesh(1, 4, 1, 1, 1, 1, textures[13], textures[13], textures[13]);
+		glTranslatef(5, 0, 0);
+		cubeMesh(1, 4, 1, 1, 1, 1, textures[13], textures[13], textures[13]);
 		glTranslatef(0, 0, -4);
-		glutWireCube(1);
-		glTranslatef(-6, 0, 0);
-		glutWireCube(1);
+		cubeMesh(1, 4, 1, 1, 1, 1, textures[13], textures[13], textures[13]);
+		glTranslatef(-5, 0, 0);
+		cubeMesh(1, 4, 1, 1, 1, 1, textures[13], textures[13], textures[13]);
 	glPopMatrix();
 	glPushMatrix();
-		glTranslatef(0, 5, 10);
-		glScalef(7, 1 , 5);
-		glutWireCube(1);
+		glTranslatef(0, 4.875, 10);
+		cubeMesh(6, 0.75, 5, 1, 1, 1, textures[13], textures[13], textures[13]);
 	glPopMatrix();
 }
 
 void drawTable(){
 	glColor4f(BLUE);
 	//pernas
-	glEnable(GL_LIGHTING);
 	glEnable(GL_TEXTURE_2D);
 	GLfloat brown[] = {0.846, 0.6, 0.468, 1};
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brown);
@@ -582,14 +625,12 @@ void drawTable(){
 		cubeMesh(15, 1, 10, 1, 1, 1, textures[5], textures[5], textures[4]); //tampo
 	glPopMatrix();
 	glDisable(GL_TEXTURE_2D);
-	glDisable(GL_LIGHTING);
 	glMatrixMode(GL_TEXTURE);
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
 }
 
 void drawObjects(){
-	glEnable(GL_LIGHTING);
 	glColor4f(GREEN);
 	
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
@@ -638,11 +679,8 @@ void drawObjects(){
 	glPushMatrix();
 		glTranslatef(-3, 8.625, 17);
 		glRotatef(180, 0 , 1, 0);
-		//glScalef(1, 0.25, 1.5);
-		//glutWireCube(1);	//rato
-		cubeMesh(1, 0.25, 1.5, 1, 1, 1, textures[12], textures[12], textures[11]);
+		cubeMesh(1, 0.25, 1.5, 1, 1, 1, textures[12], textures[12], textures[11]); //rato
 	glPopMatrix();
-	glDisable(GL_LIGHTING);
 	glPushMatrix();
 		glTranslatef(6, 9.5, 18);
 		//glutWireTeapot(1);	//TODO: Chavena cilindrica
@@ -665,10 +703,8 @@ void display(void) {
 	applyKeys();
 	camera.render();
 	updateLights();
-	drawAxis();
-	glEnable(GL_LIGHTING);
+	drawAxis();;
 	drawWalls();
-	glDisable(GL_LIGHTING);
 	drawWardrobe();
 	drawNightstand();
 	drawBed();
