@@ -4,6 +4,7 @@ Tiago Gomes - 2015238615
 
 ESC: exit
 M: ignore mouse
+N: Cycle through Day/Night
 
 Movement:
 	W : move forwards
@@ -18,7 +19,7 @@ Movement:
 #include "RgbImage.h"
 #include "materiais.h"
 #include <stdio.h>
-#define FAR_CLIPPING_PLANE 1000
+#define FAR_CLIPPING_PLANE 10000
 #define NEAR_CLIPPING_PLANE 0.01
 #define VIEWING_ANGLE 40
 #define BLUE 		0.0, 0.0, 1.0, 1.0
@@ -38,11 +39,12 @@ GLfloat yCenter = (GLfloat)windowHeight/2;
 
 RgbImage img;
 GLuint textures[17];
-
+GLuint skybox[12];
+int skyboxoffset = 0;
+bool day = false;
 
 void initLights(){
-	//GLfloat luzGlobalCor[]={0.1,0.1,0.1,1}; 
-	GLfloat luzGlobalCor[]={0,0,0,1}; 
+	GLfloat luzGlobalCor[]={0.3,0.3,0.3,1}; 
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luzGlobalCor); //ambiente
 	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
 	
@@ -303,6 +305,142 @@ void loadTextures() {
 		img.ImageData());
 }
 
+void loadSkybox(){
+	glGenTextures(12, skybox);
+
+	glBindTexture(GL_TEXTURE_2D, skybox[0]);
+	img.LoadBmpFile("skybox/frontD.bmp");
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
+
+	glBindTexture(GL_TEXTURE_2D, skybox[1]);
+	img.LoadBmpFile("skybox/rightD.bmp");
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
+
+	glBindTexture(GL_TEXTURE_2D, skybox[2]);
+	img.LoadBmpFile("skybox/backD.bmp");
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
+
+	glBindTexture(GL_TEXTURE_2D, skybox[3]);
+	img.LoadBmpFile("skybox/leftD.bmp");
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
+
+	glBindTexture(GL_TEXTURE_2D, skybox[4]);
+	img.LoadBmpFile("skybox/topD.bmp");
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
+
+	glBindTexture(GL_TEXTURE_2D, skybox[5]);
+	img.LoadBmpFile("skybox/bottomD.bmp");
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
+
+	glBindTexture(GL_TEXTURE_2D, skybox[6]);
+	img.LoadBmpFile("skybox/frontN.bmp");
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
+
+	glBindTexture(GL_TEXTURE_2D, skybox[7]);
+	img.LoadBmpFile("skybox/rightN.bmp");
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
+
+	glBindTexture(GL_TEXTURE_2D, skybox[8]);
+	img.LoadBmpFile("skybox/backN.bmp");
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
+
+	glBindTexture(GL_TEXTURE_2D, skybox[9]);
+	img.LoadBmpFile("skybox/leftN.bmp");
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
+
+	glBindTexture(GL_TEXTURE_2D, skybox[10]);
+	img.LoadBmpFile("skybox/topN.bmp");
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
+
+	glBindTexture(GL_TEXTURE_2D, skybox[11]);
+	img.LoadBmpFile("skybox/bottomN.bmp");
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
+}
+
 void squareMesh(int dimX, int dimY, float repeatS, float repeatT) {
 	int i, j;
 	/*
@@ -419,6 +557,60 @@ void drawAxis() {
 	glEnable(GL_LIGHTING);
 }
 
+
+void drawSkybox(){
+	glDisable(GL_LIGHTING);
+	glEnable(GL_TEXTURE_2D);
+	glColor4f(WHITE);
+	glPushMatrix();
+		glScalef(10000, 10000, 10000);		
+		glNormal3f(0, 0, 1);
+
+		glBindTexture(GL_TEXTURE_2D, skybox[0 + skyboxoffset]);
+		glPushMatrix();
+			glTranslatef(0, 0, 0.5);
+			glRotatef(180, 0, 1, 0);
+			squareMesh(1, 1, 1, 1);		//front	
+		glPopMatrix();
+
+		glBindTexture(GL_TEXTURE_2D, skybox[1 + skyboxoffset]);
+		glPushMatrix();
+			glTranslatef(0.5, 0, 0);
+			glRotatef(-90, 0, 1, 0);
+			squareMesh(1, 1, 1, 1);		//right
+		glPopMatrix();
+
+		glBindTexture(GL_TEXTURE_2D, skybox[2 + skyboxoffset]);
+		glPushMatrix();
+			glTranslatef(0, 0, -0.5);
+			squareMesh(1, 1, 1, 1);		//back
+		glPopMatrix();
+
+		glBindTexture(GL_TEXTURE_2D, skybox[3 + skyboxoffset]);
+		glPushMatrix();
+			glTranslatef(-0.5, 0, 0);
+			glRotatef(90, 0, 1, 0);
+			squareMesh(1, 1, 1, 1);		//left
+		glPopMatrix();
+
+		glBindTexture(GL_TEXTURE_2D, skybox[4 + skyboxoffset]);
+		glPushMatrix();
+			glTranslatef(0, 0.5, 0);
+			glRotatef(90, 1, 0, 0);
+			squareMesh(1, 1, 1, 1);		//top
+		glPopMatrix();
+
+		glBindTexture(GL_TEXTURE_2D, skybox[5 + skyboxoffset]);
+		glPushMatrix();
+			glTranslatef(0, -0.5, 0);
+			glRotatef(-90, 1, 0, 0);
+			squareMesh(1, 1, 1, 1);		//bottom
+		glPopMatrix();
+	glPopMatrix();
+	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_LIGHTING);
+}
+
 void drawWalls() {
 	GLfloat brown[] = {0.423, 0.3, 0.234, 1};
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brown);
@@ -446,40 +638,16 @@ void drawWalls() {
 		cubeMesh(1, 30, 10, 0.5, 1, 3, textures[1], textures[1], textures[1]);		//esquerda da janela
 	glPopMatrix();
 	glPushMatrix();
-		glTranslatef(-25.5, 27, 7.5);
-		cubeMesh(1, 5, 15, 0.5, 0.9, 0.5, textures[1], textures[1], textures[1]);	//cima da janela
+		glTranslatef(-25.5, 25.75, 7.5);
+		cubeMesh(1, 7.5, 15, 0.5, 0.9, 0.75, textures[1], textures[1], textures[1]);	//cima da janela
 	glPopMatrix();
 		glPushMatrix();
-		glTranslatef(-25.5, 4.5, 7.5);
-		cubeMesh(1, 10, 15, 0.5, 0.9, 1, textures[1], textures[1], textures[1]);	//baixo da janela
+		glTranslatef(-25.5, 3.25, 7.5);
+		cubeMesh(1, 7.5, 15, 0.5, 0.9, 0.75, textures[1], textures[1], textures[1]);	//baixo da janela
 	glPopMatrix();
 	glPushMatrix();
 		glTranslatef(-25.5, 14.5, -12.5);
 		cubeMesh(1, 30, 25, 0.5, 1.5, 3, textures[1], textures[1], textures[1]);	//direita da janela
-	glPopMatrix();
-
-	//janela
-	glPushMatrix();
-		glTranslatef(-25.5, 17, 14.5);
-		cubeMesh(3, 15, 1, 1, 1, 1, 0, 0, 0);	//armacao esquerda
-		glTranslatef(0, 0, -14);
-		cubeMesh(3, 15, 1, 1, 1, 1, 0, 0, 0);	//armacao direita
-	glPopMatrix();
-	glPushMatrix();
-		glTranslatef(-25.5, 21, 7.5);
-		cubeMesh(2, 7, 1, 1, 1, 1, 0, 0, 0);	//armacao meio cima
-	glPopMatrix();
-	glPushMatrix();
-		glTranslatef(-25.5, 13, 7.5);
-		cubeMesh(2, 7, 1, 1, 1, 1, 0, 0, 0);	//armacao meio baixo
-	glPopMatrix();
-	glPushMatrix();
-		glTranslatef(-25.5, 24, 7.5);
-		cubeMesh(3, 1, 13, 1, 1, 1, 0, 0, 0);	//armacao cima
-		glTranslatef(0, -7, 0);
-		cubeMesh(2, 1, 13, 1, 1, 1, 0, 0, 0);	//armacao meio
-		glTranslatef(0, -7, 0);
-		cubeMesh(3, 1, 13, 1, 1, 1, 0, 0, 0);	//armacao baixo
 	glPopMatrix();
 
 	glPushMatrix();
@@ -487,6 +655,33 @@ void drawWalls() {
 		cubeMesh(50, 30, 1, 0.5, 3, 3, textures[1], textures[1], textures[1]);	//parede do computador
 		glTranslatef(0, 0, -49);
 		cubeMesh(50, 30, 1, 0.5, 3, 3, textures[1], textures[1], textures[1]);	//parede da cabeceira
+	glPopMatrix();
+
+	//janela
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, halves);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, halves);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.3 * 128);
+	glPushMatrix();
+		glTranslatef(-25.5, 14.5, 14.5);
+		cubeMesh(3, 15, 1, 1, 1, 1, 0, 0, 0);	//armacao esquerda
+		glTranslatef(0, 0, -14);
+		cubeMesh(3, 15, 1, 1, 1, 1, 0, 0, 0);	//armacao direita
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(-25.5, 18.5, 7.5);
+		cubeMesh(2, 7, 1, 1, 1, 1, 0, 0, 0);	//armacao meio cima
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(-25.5, 10.5, 7.5);
+		cubeMesh(2, 7, 1, 1, 1, 1, 0, 0, 0);	//armacao meio baixo
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(-25.5, 21.5, 7.5);
+		cubeMesh(3, 1, 13, 1, 1, 1, 0, 0, 0);	//armacao cima
+		glTranslatef(0, -7, 0);
+		cubeMesh(2, 1, 13, 1, 1, 1, 0, 0, 0);	//armacao meio
+		glTranslatef(0, -7, 0);
+		cubeMesh(3, 1, 13, 1, 1, 1, 0, 0, 0);	//armacao baixo
 	glPopMatrix();
 }
 
@@ -860,6 +1055,7 @@ void display(void) {
 	drawTable();
 	drawObjects();
 	drawCeilingLamp();
+	drawSkybox();
 
 	/*
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
@@ -905,7 +1101,20 @@ void keyDown(unsigned char key, int x, int y) {
 			else
 				glutSetCursor(GLUT_CURSOR_NONE);
 			break;
-
+		case 'N':
+		case 'n':
+			day = !day;
+			if (day){
+				GLfloat luzGlobalCor[]={0.3, 0.3, 0.3, 1}; 
+				glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luzGlobalCor);
+				skyboxoffset = 0;
+			}
+			else{
+				GLfloat luzGlobalCor[]={0, 0, 0, 1}; 
+				glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luzGlobalCor);
+				skyboxoffset = 6;
+			}
+			break;
 		case 'W':
 		case 'w':
 			keyState[K_FRONT] = true;
@@ -978,6 +1187,7 @@ void initialization() {
 	initLights();
 
 	loadTextures();
+	loadSkybox();
 }
 
 int main(int argc, char **argv) {
