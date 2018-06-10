@@ -871,27 +871,52 @@ void drawObjects(){
 		cubeMesh(1, 0.25, 1.5, 1, 1, 1, textures[12], textures[12], textures[11]); //rato
 	glPopMatrix();
 
-	//glEnable(GL_TEXTURE_2D);
-	//glBindTexture(GL_TEXTURE_2D, textures[15]);
 	GLUquadric* quad = gluNewQuadric();
-	//gluQuadricTexture(quad, GLU_TRUE);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, halves);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, halves);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.4 *128);
 	glPushMatrix();
-		//glTranslatef(0, 4.875, 10);
-		//cubeMesh(6, 0.75, 5, 1, 1, 1, textures[13], textures[13], textures[13]);	
-		//glTranslatef(6, 8.75, 18);
+		glTranslatef(0.75, 6, 10);
+		glScalef(0.2, 1, 0.2);
+		glutSolidCube(1);	//pega lado
+	glPopMatrix();
+
+	glPushMatrix();
+		glTranslatef(0.97, 6.5, 10);
+		glScalef(0.64, 0.2, 0.2);
+		glutSolidCube(1);	//pega cima
+	glPopMatrix();
+
+	glPushMatrix();
+		glTranslatef(0.97, 5.5, 10);
+		glScalef(0.64, 0.2, 0.2);
+		glutSolidCube(1);	//pega cima
+	glPopMatrix();
+
+	glPushMatrix();
 		glTranslatef(2, 5.26, 10);
 		glRotatef(-90, 1, 0, 0);
 		
-		gluCylinder(quad, 0.75, 0.75, 1.5, 12, 16);
-		gluQuadricOrientation(quad, GLU_INSIDE);
-		gluCylinder(quad, 0.6, 0.6, 1.5, 12, 16);
+		gluCylinder(quad, 0.75, 0.75, 1.5, 12, 16);	//chavena fora
+		gluQuadricOrientation(quad, GLU_INSIDE);	
+		gluCylinder(quad, 0.6, 0.6, 1.5, 12, 16);	//chavena dentro
 		gluQuadricOrientation(quad, GLU_OUTSIDE);
-		gluDisk(quad, 0, 0.6, 12, 1);
+		gluDisk(quad, 0, 0.6, 12, 1);				//fundo
 		glTranslatef(0, 0, 1.5);
-		gluDisk(quad, 0.6, 0.75, 12, 1);
+		gluDisk(quad, 0.6, 0.75, 12, 1);			//rebordo
+		glTranslatef(0, 0, -0.5);
+
+		GLfloat brown[] = {0.423, 0.3, 0.234, 0.8};
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brown);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, brown);
+		glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		gluDisk(quad, 0, 0.6, 12, 1);				//superificie do liquido
+		glDisable(GL_BLEND);
 	glPopMatrix();
-	//glDisable(GL_TEXTURE_2D);
 	gluDeleteQuadric(quad);
+
 }
 
 void drawCeilingLamp(){
@@ -939,11 +964,16 @@ void drawCeilingLamp(){
 	gluDeleteQuadric(quad);
 
 	quad = gluNewQuadric();
+	if (ceilingLamp){
+		glDisable(GL_LIGHTING);
+		glColor4f(WHITE);
+	}
 	glPushMatrix();
 		glTranslatef(0, 21, 0);
 		glScalef(0.6, 1, 0.6);
 		gluSphere(quad, 0.5, 10, 10);	//lampada
 	glPopMatrix();
+	if (ceilingLamp) glEnable(GL_LIGHTING);
 	gluDeleteQuadric(quad);
 }
 
@@ -1092,6 +1122,10 @@ void drawNightstand() {
 }
 
 void drawGlass() {
+	GLfloat darker[] = {0.2, 0.2, 0.2, 1};
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, darker);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128);	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	glPushMatrix();
