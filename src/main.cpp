@@ -14,10 +14,10 @@ Movement:
 	mouse: look around
 
 **********************************************/
-
 #include "FPSCamera.h"
 #include "RgbImage.h"
 #include "materiais.h"
+#include "math.h"
 #include <stdio.h>
 #define FAR_CLIPPING_PLANE 10000
 #define NEAR_CLIPPING_PLANE 0.01
@@ -39,12 +39,16 @@ GLfloat yCenter = (GLfloat)windowHeight/2;
 
 RgbImage img;
 GLuint textures[17];
+
 GLuint skybox[12];
-int skyboxoffset = 0;
+int skyboxoffset = 6;
 bool day = false;
 
+GLuint flame[34];
+int currentflame = 0;
+
 void initLights(){
-	GLfloat luzGlobalCor[]={0.3,0.3,0.3,1}; 
+	GLfloat luzGlobalCor[]={0,0,0,1}; 
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luzGlobalCor); //ambiente
 	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
 	
@@ -71,8 +75,8 @@ void initLights(){
 	glLightfv(GL_LIGHT2, GL_DIFFUSE, yellowish);
 	glLightfv(GL_LIGHT2, GL_SPECULAR, yellowish);
 	glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1);
-	glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, 0.3);
-	glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 0);
+	glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, 0);
+	glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 0.02);
 	glEnable(GL_LIGHT2);	//luz vela
 
 	glEnable(GL_LIGHTING);
@@ -88,13 +92,8 @@ void updateLights(){
 	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, dir);
 	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 80);
 
-	glPushMatrix();
-		glTranslatef(-6, 10.5, -20);
-		glutWireCube(1);
-	glPopMatrix();
 	GLfloat light2Pos[4] = {-6, 10.5, -20, 1};
 	glLightfv(GL_LIGHT2, GL_POSITION, light2Pos);
-	
 }
 
 void loadTextures() {
@@ -305,7 +304,7 @@ void loadTextures() {
 		img.ImageData());
 }
 
-void loadSkybox(){
+void loadSkybox() {
 	glGenTextures(12, skybox);
 
 	glBindTexture(GL_TEXTURE_2D, skybox[0]);
@@ -439,6 +438,24 @@ void loadSkybox(){
 	img.GetNumCols(),
 		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
 		img.ImageData());
+}
+
+void loadFlame() {
+	glGenTextures(34, flame);
+	char aux[32];
+	for (int i=0; i<34; i++){
+		glBindTexture(GL_TEXTURE_2D, flame[i]);
+		sprintf(aux, "flame/_%04d_flame.bmp", i);
+		img.LoadBmpFile(aux);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+		img.GetNumCols(),
+			img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+			img.ImageData());
+	}
 }
 
 void squareMesh(int dimX, int dimY, float repeatS, float repeatT) {
@@ -786,7 +803,7 @@ void drawNightstand() {
 	glPushMatrix();
 		glTranslatef(-6, 10.15, -20);
 		glScalef(0.05, 0.3, 0.05);
-		glutSolidCube(1);
+		glutSolidCube(1);	// rastilho
 	glPopMatrix();
 
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
@@ -811,6 +828,25 @@ void drawNightstand() {
 		gluDisk(quad, 0, 0.5, 12, 1);		//parte de cima
 	glPopMatrix();
 	gluDeleteQuadric(quad);
+
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	glBindTexture(GL_TEXTURE_2D, flame[currentflame]);
+	currentflame = (currentflame + 1) % 34;
+	glPushMatrix();
+		glTranslatef(-6, 11, -20);
+		GLfloat angle = atan2(camera.position.z + 20, camera.position.x + 6) / DEGREE_DIVISION;
+		glRotatef(90 - angle, 0, 1, 0);
+		glBegin(GL_QUADS);								//chama da vela
+			glTexCoord2d(0,0); glVertex3f(-1, -1, 0);
+			glTexCoord2d(1,0); glVertex3f( 1, -1, 0);
+			glTexCoord2d(1,1); glVertex3f( 1,  1, 0);
+			glTexCoord2d(0,1); glVertex3f(-1,  1, 0);
+		glEnd();
+	glPopMatrix();
+	glDisable(GL_BLEND);
+	glDisable(GL_TEXTURE_2D);
 }
 
 void drawBed(){
@@ -1049,13 +1085,13 @@ void display(void) {
 	drawAxis();;
 	drawWalls();
 	drawWardrobe();
-	drawNightstand();
 	drawBed();
 	drawSeat();
 	drawTable();
 	drawObjects();
 	drawCeilingLamp();
 	drawSkybox();
+	drawNightstand();
 
 	/*
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
@@ -1188,6 +1224,7 @@ void initialization() {
 
 	loadTextures();
 	loadSkybox();
+	loadFlame();
 }
 
 int main(int argc, char **argv) {
