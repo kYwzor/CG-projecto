@@ -4,7 +4,10 @@ Tiago Gomes - 2015238615
 
 ESC: exit
 M: ignore mouse
-N: Cycle through Day/Night
+N: cycle through day/night
+J: reboot computer WIP
+K: control candle flame
+L: control ceiling light
 
 Movement:
 	W : move forwards
@@ -47,17 +50,19 @@ bool day = false;
 GLuint flame[34];
 int currentflame = 0;
 
+bool ceilingLamp = true;
+bool candleFlame = true;
+
 void initLights(){
 	GLfloat luzGlobalCor[]={0,0,0,1}; 
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luzGlobalCor); //ambiente
 	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
 	
-	
 	glLightfv(GL_LIGHT0, GL_AMBIENT, ones);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, ones);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, ones);
-	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.6);
-	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.1);
+	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.2);
+	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.2);
 	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0);
 	glEnable(GL_LIGHT0);	//luz teto
 
@@ -74,7 +79,7 @@ void initLights(){
 	glLightfv(GL_LIGHT2, GL_AMBIENT, yellowish);
 	glLightfv(GL_LIGHT2, GL_DIFFUSE, yellowish);
 	glLightfv(GL_LIGHT2, GL_SPECULAR, yellowish);
-	glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1);
+	glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1.4);
 	glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, 0);
 	glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 0.02);
 	glEnable(GL_LIGHT2);	//luz vela
@@ -574,60 +579,6 @@ void drawAxis() {
 	glEnable(GL_LIGHTING);
 }
 
-
-void drawSkybox(){
-	glDisable(GL_LIGHTING);
-	glEnable(GL_TEXTURE_2D);
-	glColor4f(WHITE);
-	glPushMatrix();
-		glScalef(10000, 10000, 10000);		
-		glNormal3f(0, 0, 1);
-
-		glBindTexture(GL_TEXTURE_2D, skybox[0 + skyboxoffset]);
-		glPushMatrix();
-			glTranslatef(0, 0, 0.5);
-			glRotatef(180, 0, 1, 0);
-			squareMesh(1, 1, 1, 1);		//front	
-		glPopMatrix();
-
-		glBindTexture(GL_TEXTURE_2D, skybox[1 + skyboxoffset]);
-		glPushMatrix();
-			glTranslatef(0.5, 0, 0);
-			glRotatef(-90, 0, 1, 0);
-			squareMesh(1, 1, 1, 1);		//right
-		glPopMatrix();
-
-		glBindTexture(GL_TEXTURE_2D, skybox[2 + skyboxoffset]);
-		glPushMatrix();
-			glTranslatef(0, 0, -0.5);
-			squareMesh(1, 1, 1, 1);		//back
-		glPopMatrix();
-
-		glBindTexture(GL_TEXTURE_2D, skybox[3 + skyboxoffset]);
-		glPushMatrix();
-			glTranslatef(-0.5, 0, 0);
-			glRotatef(90, 0, 1, 0);
-			squareMesh(1, 1, 1, 1);		//left
-		glPopMatrix();
-
-		glBindTexture(GL_TEXTURE_2D, skybox[4 + skyboxoffset]);
-		glPushMatrix();
-			glTranslatef(0, 0.5, 0);
-			glRotatef(90, 1, 0, 0);
-			squareMesh(1, 1, 1, 1);		//top
-		glPopMatrix();
-
-		glBindTexture(GL_TEXTURE_2D, skybox[5 + skyboxoffset]);
-		glPushMatrix();
-			glTranslatef(0, -0.5, 0);
-			glRotatef(-90, 1, 0, 0);
-			squareMesh(1, 1, 1, 1);		//bottom
-		glPopMatrix();
-	glPopMatrix();
-	glDisable(GL_TEXTURE_2D);
-	glEnable(GL_LIGHTING);
-}
-
 void drawWalls() {
 	GLfloat brown[] = {0.423, 0.3, 0.234, 1};
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brown);
@@ -757,95 +708,6 @@ void drawWardrobe() {
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
 	gluDeleteQuadric(quad);
-	glDisable(GL_TEXTURE_2D);
-}
-
-void drawNightstand() {
-	GLfloat brown[] = {0.6, 0.4, 0.3, 1};
-	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brown);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
-	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.4 *128);
-	
-	glPushMatrix();
-		glTranslatef(-4, 3.5, -20);
-		cubeMesh(10, 6, 6, 1, 1, 1, textures[7], textures[7], textures[7]);	//mesa de cabeceira
-	glPopMatrix();
-
-	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, halves);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, halves);
-	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.8 * 128);
-	GLUquadric* quad = gluNewQuadric();
-	glPushMatrix();
-		glTranslatef(-6, 6.5, -20);
-		glRotatef(-90, 1, 0, 0);
-		gluCylinder(quad, 1, 1, 0.5, 12, 12);	//base da vela
-		glTranslatef(0, 0, 0.5);
-		gluDisk(quad, 0, 1, 12, 1);		//parte de cima
-	glPopMatrix();
-	gluDeleteQuadric(quad);
-
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
-	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128);
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, textures[16]);
-	quad = gluNewQuadric();
-	gluQuadricTexture(quad, GLU_TRUE);
-	glPushMatrix();
-		glTranslatef(-6, 7, -20);
-		glRotatef(-90, 1, 0, 0);
-		gluCylinder(quad, 0.2, 0.15, 3, 12, 12);	//vela
-		glTranslatef(0, 0, 3);
-		gluDisk(quad, 0, 0.15, 12, 1);		//parte de cima
-	glPopMatrix();
-	gluDeleteQuadric(quad);
-
-	glPushMatrix();
-		glTranslatef(-6, 10.15, -20);
-		glScalef(0.05, 0.3, 0.05);
-		glutSolidCube(1);	// rastilho
-	glPopMatrix();
-
-	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
-	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.9 * 128);
-	glBindTexture(GL_TEXTURE_2D, textures[8]);
-	quad = gluNewQuadric();
-	gluQuadricTexture(quad, GLU_TRUE);
-	glPushMatrix();
-		glTranslatef(-1.5, 6.5, -20);
-		glRotatef(-90, 1, 0, 0);
-		gluCylinder(quad, 0.5, 0.5, 1.5, 12, 12);	//lata
-		//glRotatef(180, 1, 0, 0);
-		//gluDisk(quad, 0, 0.5, 8, 1);
-		//glRotatef(180, 1, 0, 0);
-
-		glDisable(GL_TEXTURE_2D);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, halves);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, halves);
-		glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.8 * 128);
-		glTranslatef(0, 0, 1.5);
-		gluDisk(quad, 0, 0.5, 12, 1);		//parte de cima
-	glPopMatrix();
-	gluDeleteQuadric(quad);
-
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	glBindTexture(GL_TEXTURE_2D, flame[currentflame]);
-	currentflame = (currentflame + 1) % 34;
-	glPushMatrix();
-		glTranslatef(-6, 11, -20);
-		GLfloat angle = atan2(camera.position.z + 20, camera.position.x + 6) / DEGREE_DIVISION;
-		glRotatef(90 - angle, 0, 1, 0);
-		glBegin(GL_QUADS);								//chama da vela
-			glTexCoord2d(0,0); glVertex3f(-1, -1, 0);
-			glTexCoord2d(1,0); glVertex3f( 1, -1, 0);
-			glTexCoord2d(1,1); glVertex3f( 1,  1, 0);
-			glTexCoord2d(0,1); glVertex3f(-1,  1, 0);
-		glEnd();
-	glPopMatrix();
-	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
 }
 
@@ -1008,23 +870,34 @@ void drawObjects(){
 		glRotatef(180, 0 , 1, 0);
 		cubeMesh(1, 0.25, 1.5, 1, 1, 1, textures[12], textures[12], textures[11]); //rato
 	glPopMatrix();
+
+	//glEnable(GL_TEXTURE_2D);
+	//glBindTexture(GL_TEXTURE_2D, textures[15]);
+	GLUquadric* quad = gluNewQuadric();
+	//gluQuadricTexture(quad, GLU_TRUE);
 	glPushMatrix();
-		glTranslatef(6, 9.5, 18);
-		//glutWireTeapot(1);	//TODO: Chavena cilindrica
+		//glTranslatef(0, 4.875, 10);
+		//cubeMesh(6, 0.75, 5, 1, 1, 1, textures[13], textures[13], textures[13]);	
+		//glTranslatef(6, 8.75, 18);
+		glTranslatef(2, 5.26, 10);
+		glRotatef(-90, 1, 0, 0);
+		
+		gluCylinder(quad, 0.75, 0.75, 1.5, 12, 16);
+		gluQuadricOrientation(quad, GLU_INSIDE);
+		gluCylinder(quad, 0.6, 0.6, 1.5, 12, 16);
+		gluQuadricOrientation(quad, GLU_OUTSIDE);
+		gluDisk(quad, 0, 0.6, 12, 1);
+		glTranslatef(0, 0, 1.5);
+		gluDisk(quad, 0.6, 0.75, 12, 1);
 	glPopMatrix();
+	//glDisable(GL_TEXTURE_2D);
+	gluDeleteQuadric(quad);
 }
 
 void drawCeilingLamp(){
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128);
-	GLUquadric* quad = gluNewQuadric();
-	glPushMatrix();
-		glTranslatef(0, 21, 0);
-		glScalef(0.6, 1, 0.6);
-		gluSphere(quad, 0.5, 10, 10);	//lampada
-	glPopMatrix();
-	gluDeleteQuadric(quad);
 
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, blackPlasticAmb);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, blackPlasticDif);
@@ -1052,7 +925,7 @@ void drawCeilingLamp(){
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, textures[15]);
-	quad = gluNewQuadric();
+	GLUquadric* quad = gluNewQuadric();
 	gluQuadricTexture(quad, GLU_TRUE);
 	glPushMatrix();
 		glTranslatef(0, 20, 0);
@@ -1064,6 +937,184 @@ void drawCeilingLamp(){
 	glPopMatrix();
 	glDisable(GL_TEXTURE_2D);
 	gluDeleteQuadric(quad);
+
+	quad = gluNewQuadric();
+	glPushMatrix();
+		glTranslatef(0, 21, 0);
+		glScalef(0.6, 1, 0.6);
+		gluSphere(quad, 0.5, 10, 10);	//lampada
+	glPopMatrix();
+	gluDeleteQuadric(quad);
+}
+
+void drawSkybox(){
+	glDisable(GL_LIGHTING);
+	glEnable(GL_TEXTURE_2D);
+	glColor4f(WHITE);
+	glPushMatrix();
+		glScalef(10000, 10000, 10000);		
+		glNormal3f(0, 0, 1);
+
+		glBindTexture(GL_TEXTURE_2D, skybox[0 + skyboxoffset]);
+		glPushMatrix();
+			glTranslatef(0, 0, 0.5);
+			glRotatef(180, 0, 1, 0);
+			squareMesh(1, 1, 1, 1);		//front	
+		glPopMatrix();
+
+		glBindTexture(GL_TEXTURE_2D, skybox[1 + skyboxoffset]);
+		glPushMatrix();
+			glTranslatef(0.5, 0, 0);
+			glRotatef(-90, 0, 1, 0);
+			squareMesh(1, 1, 1, 1);		//right
+		glPopMatrix();
+
+		glBindTexture(GL_TEXTURE_2D, skybox[2 + skyboxoffset]);
+		glPushMatrix();
+			glTranslatef(0, 0, -0.5);
+			squareMesh(1, 1, 1, 1);		//back
+		glPopMatrix();
+
+		glBindTexture(GL_TEXTURE_2D, skybox[3 + skyboxoffset]);
+		glPushMatrix();
+			glTranslatef(-0.5, 0, 0);
+			glRotatef(90, 0, 1, 0);
+			squareMesh(1, 1, 1, 1);		//left
+		glPopMatrix();
+
+		glBindTexture(GL_TEXTURE_2D, skybox[4 + skyboxoffset]);
+		glPushMatrix();
+			glTranslatef(0, 0.5, 0);
+			glRotatef(90, 1, 0, 0);
+			squareMesh(1, 1, 1, 1);		//top
+		glPopMatrix();
+
+		glBindTexture(GL_TEXTURE_2D, skybox[5 + skyboxoffset]);
+		glPushMatrix();
+			glTranslatef(0, -0.5, 0);
+			glRotatef(-90, 1, 0, 0);
+			squareMesh(1, 1, 1, 1);		//bottom
+		glPopMatrix();
+	glPopMatrix();
+	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_LIGHTING);
+}
+
+void drawNightstand() {
+	GLfloat brown[] = {0.6, 0.4, 0.3, 1};
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brown);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.4 *128);
+	
+	glPushMatrix();
+		glTranslatef(-4, 3.5, -20);
+		cubeMesh(10, 6, 6, 1, 1, 1, textures[7], textures[7], textures[7]);	//mesa de cabeceira
+	glPopMatrix();
+
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, halves);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, halves);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.8 * 128);
+	GLUquadric* quad = gluNewQuadric();
+	glPushMatrix();
+		glTranslatef(-6, 6.5, -20);
+		glRotatef(-90, 1, 0, 0);
+		gluCylinder(quad, 1, 1, 0.5, 12, 12);	//base da vela
+		glTranslatef(0, 0, 0.5);
+		gluDisk(quad, 0, 1, 12, 1);		//parte de cima
+	glPopMatrix();
+	gluDeleteQuadric(quad);
+
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128);
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, textures[16]);
+	quad = gluNewQuadric();
+	gluQuadricTexture(quad, GLU_TRUE);
+	glPushMatrix();
+		glTranslatef(-6, 7, -20);
+		glRotatef(-90, 1, 0, 0);
+		gluCylinder(quad, 0.2, 0.15, 3, 12, 12);	//vela
+		glTranslatef(0, 0, 3);
+		gluDisk(quad, 0, 0.15, 12, 1);		//parte de cima
+	glPopMatrix();
+	gluDeleteQuadric(quad);
+
+	glPushMatrix();
+		glTranslatef(-6, 10.15, -20);
+		glScalef(0.05, 0.3, 0.05);
+		glutSolidCube(1);	// rastilho
+	glPopMatrix();
+
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.9 * 128);
+	glBindTexture(GL_TEXTURE_2D, textures[8]);
+	quad = gluNewQuadric();
+	gluQuadricTexture(quad, GLU_TRUE);
+	glPushMatrix();
+		glTranslatef(-1.5, 6.5, -20);
+		glRotatef(-90, 1, 0, 0);
+		gluCylinder(quad, 0.5, 0.5, 1.5, 12, 12);	//lata
+		//glRotatef(180, 1, 0, 0);
+		//gluDisk(quad, 0, 0.5, 8, 1);
+		//glRotatef(180, 1, 0, 0);
+
+		glDisable(GL_TEXTURE_2D);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, halves);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, halves);
+		glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.8 * 128);
+		glTranslatef(0, 0, 1.5);
+		gluDisk(quad, 0, 0.5, 12, 1);		//parte de cima
+	glPopMatrix();
+	gluDeleteQuadric(quad);
+
+	if(candleFlame){
+		glEnable(GL_TEXTURE_2D);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		glBindTexture(GL_TEXTURE_2D, flame[currentflame]);
+		currentflame = (currentflame + 1) % 34;
+		glPushMatrix();
+			glTranslatef(-6, 11, -20);
+			GLfloat angle = atan2(camera.position.z + 20, camera.position.x + 6) / DEGREE_DIVISION;
+			glRotatef(90 - angle, 0, 1, 0);
+			glBegin(GL_QUADS);								//chama da vela
+				glTexCoord2d(0,0); glVertex3f(-1, -1, 0);
+				glTexCoord2d(1,0); glVertex3f( 1, -1, 0);
+				glTexCoord2d(1,1); glVertex3f( 1,  1, 0);
+				glTexCoord2d(0,1); glVertex3f(-1,  1, 0);
+			glEnd();
+		glPopMatrix();
+		glDisable(GL_BLEND);
+		glDisable(GL_TEXTURE_2D);
+	}
+}
+
+void drawGlass() {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	glPushMatrix();
+		glTranslatef(-25.5 , 18, 11);
+		glScalef(0.25, 6, 6);
+		glutSolidCube(1);	//vidro cima esquerda
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(-25.5 , 18, 4);
+		glScalef(0.25, 6, 6);
+		glutSolidCube(1);	//vidro cima direita
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(-25.5 , 11, 11);
+		glScalef(0.25, 6, 6);
+		glutSolidCube(1);	//vidro baixo esquerda
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(-25.5 , 11, 4);
+		glScalef(0.25, 6, 6);
+		glutSolidCube(1);	//vidro baixo direita
+	glPopMatrix();
+	glDisable(GL_BLEND);
 }
 
 void applyKeys() {
@@ -1092,16 +1143,13 @@ void display(void) {
 	drawCeilingLamp();
 	drawSkybox();
 	drawNightstand();
+	drawGlass();
 
 	/*
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 	glEnable(GL_COLOR_MATERIAL);
 	*/
 
-	glPushMatrix();
-		glTranslatef(0, -10, 10);
-		//glutWireCube(1);
-	glPopMatrix();
 	//cubeMesh(40, 1, 40, 1, textures[1], 4, 4);
 
 	glutSwapBuffers();
@@ -1150,6 +1198,22 @@ void keyDown(unsigned char key, int x, int y) {
 				glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luzGlobalCor);
 				skyboxoffset = 6;
 			}
+			break;
+		case 'J':
+		case 'j':
+			// computer
+			break;
+		case 'K':
+		case 'k':
+			candleFlame = !candleFlame;
+			if (candleFlame) glEnable(GL_LIGHT2);
+			else glDisable(GL_LIGHT2);
+			break;
+		case 'L':
+		case 'l':
+			ceilingLamp = !ceilingLamp;
+			if (ceilingLamp) glEnable(GL_LIGHT0);
+			else glDisable(GL_LIGHT0);
 			break;
 		case 'W':
 		case 'w':
@@ -1231,7 +1295,7 @@ int main(int argc, char **argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(windowWidth,windowHeight);
-	glutCreateWindow("Meta 1 CG");
+	glutCreateWindow("Projeto CG");
 
 	initialization();
 
