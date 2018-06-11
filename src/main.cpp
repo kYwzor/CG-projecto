@@ -1227,39 +1227,38 @@ void drawNightstand() {
 		perc = 0;
 	}
 
-	GLfloat aux_x = perc;
-	GLfloat aux_y = perc;
 	GLfloat aux_angle = perc * 90;
 	glPushMatrix();
-		glTranslatef(-1.5 + aux_x, 6.5 + aux_y, -20);
+		glTranslatef(-0.75, 6.5, -20);
 		glRotatef(90-aux_angle, 0, 0, 1);
 		glRotatef(90, 1, 0, 0);
-		halfCylinder(1, 3, 6, textures[8], textures[17], 2);
+		glTranslatef(0, 0, -0.75);
+		halfCylinder(0.75, 2.25, 6, textures[8], textures[17], 2);
 	glPopMatrix();
 
 	glPushMatrix();
-		glTranslatef(-1.5 - aux_x, 6.5 + aux_y, -20);
+		glTranslatef(-2.25, 6.5, -20);
 		glRotatef(aux_angle, 0, 0, 1);
 		glRotatef(-90, 0, 1, 0);
 		glRotatef(90, 0, 0, 1);
-		halfCylinder(1, 3, 6, textures[8], textures[17], 1);
+		glTranslatef(0, 0, -0.75);
+		halfCylinder(0.75, 2.25, 6, textures[8], textures[17], 1);
 	glPopMatrix();
 
-	aux_x = perc * 0.5;
-	aux_y = perc * 0.5;
-	aux_angle = perc * 90;
 	glPushMatrix();
-		glTranslatef(-1.5 + aux_x, 6.5 + aux_y, -20);
+		glTranslatef(-1, 6.5, -20);
 		glRotatef(90-aux_angle, 0, 0, 1);
 		glRotatef(90, 1, 0, 0);
+		glTranslatef(0, 0, -0.5);
 		halfCylinder(0.5, 1.5, 6, textures[8], textures[17], 2);
 	glPopMatrix();
 
 	glPushMatrix();
-		glTranslatef(-1.5 - aux_x, 6.5 + aux_y, -20);
+		glTranslatef(-2, 6.5, -20);
 		glRotatef(aux_angle, 0, 0, 1);
 		glRotatef(-90, 0, 1, 0);
 		glRotatef(90, 0, 0, 1);
+		glTranslatef(0, 0, -0.5);
 		halfCylinder(0.5, 1.5, 6, textures[8], textures[17], 1);
 	glPopMatrix();
 
@@ -1332,7 +1331,7 @@ void display(void) {
 	camera.render();
 	updateLights();
 	drawAxis();;
-	drawWalls();
+	//drawWalls();
 	drawWardrobe();
 	drawBed();
 	drawSeat();
@@ -1340,8 +1339,8 @@ void display(void) {
 	drawObjects();
 	drawCeilingLamp();
 	drawSkybox();
-	drawNightstand();
 	drawGlass();
+	drawNightstand();
 
 	/*
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
