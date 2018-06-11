@@ -568,7 +568,7 @@ void cubeMesh(float scaleX, float scaleY, float scaleZ, float dim, float repeatS
 	glPopMatrix();
 }
 
-void halfCylinder(GLfloat radius, GLfloat height, int steps, GLuint texSurface, GLuint texTop, GLuint texBottom, GLfloat version){
+void halfCylinder(GLfloat radius, GLfloat height, int steps, GLuint texSurface, GLuint texTop, GLfloat version){
 	GLfloat delta = 3.14159265359/steps;
 
 	// tampa de cima, 2 vezes em direcoes diferentes
@@ -1234,7 +1234,7 @@ void drawNightstand() {
 		glTranslatef(-1.5 + aux_x, 6.5 + aux_y, -20);
 		glRotatef(90-aux_angle, 0, 0, 1);
 		glRotatef(90, 1, 0, 0);
-		halfCylinder(1, 3, 6, textures[8], textures[17], textures[17], 2);
+		halfCylinder(1, 3, 6, textures[8], textures[17], 2);
 	glPopMatrix();
 
 	glPushMatrix();
@@ -1242,7 +1242,7 @@ void drawNightstand() {
 		glRotatef(aux_angle, 0, 0, 1);
 		glRotatef(-90, 0, 1, 0);
 		glRotatef(90, 0, 0, 1);
-		halfCylinder(1, 3, 6, textures[8], textures[17], textures[17], 1);
+		halfCylinder(1, 3, 6, textures[8], textures[17], 1);
 	glPopMatrix();
 
 	aux_x = perc * 0.5;
@@ -1252,7 +1252,7 @@ void drawNightstand() {
 		glTranslatef(-1.5 + aux_x, 6.5 + aux_y, -20);
 		glRotatef(90-aux_angle, 0, 0, 1);
 		glRotatef(90, 1, 0, 0);
-		halfCylinder(0.5, 1.5, 6, textures[8], textures[17], textures[17], 2);
+		halfCylinder(0.5, 1.5, 6, textures[8], textures[17], 2);
 	glPopMatrix();
 
 	glPushMatrix();
@@ -1260,9 +1260,10 @@ void drawNightstand() {
 		glRotatef(aux_angle, 0, 0, 1);
 		glRotatef(-90, 0, 1, 0);
 		glRotatef(90, 0, 0, 1);
-		halfCylinder(0.5, 1.5, 6, textures[8], textures[17], textures[17], 1);
+		halfCylinder(0.5, 1.5, 6, textures[8], textures[17], 1);
 	glPopMatrix();
 
+	glEnable(GL_TEXTURE_2D);
 	if(candleFlame){
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
