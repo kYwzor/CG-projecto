@@ -3,8 +3,9 @@ Artur Coutinho - 2014230432
 Tiago Gomes - 2015238615
 
 ESC: exit
-M: ignore mouse
+B: open cans
 N: cycle through day/night
+M: ignore mouse
 J: reboot computer WIP
 K: control candle flame
 L: control ceiling light
@@ -53,7 +54,9 @@ int currentflame = 0;
 bool ceilingLamp = true;
 bool candleFlame = true;
 
-int aux_count = 0;
+int aux_frames = 600;
+int aux_state = -1;
+GLfloat aux_angles[] = {0, 0, 0, 0};
 
 void initLights(){
 	GLfloat luzGlobalCor[]={0,0,0,1}; 
@@ -571,6 +574,9 @@ void cubeMesh(float scaleX, float scaleY, float scaleZ, float dim, float repeatS
 void halfCylinder(GLfloat radius, GLfloat height, int steps, GLuint texSurface, GLuint texTop, GLfloat version){
 	GLfloat delta = 3.14159265359/steps;
 
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 1 * 128);
 	// tampa de cima, 2 vezes em direcoes diferentes
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, texTop);
@@ -584,6 +590,10 @@ void halfCylinder(GLfloat radius, GLfloat height, int steps, GLuint texSurface, 
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
 
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, silverAmb);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, silverDif);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, silverSpec);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, silverCoef);
 	glNormal3f(-1, 0, 0);
 	glBegin(GL_POLYGON);
 	for(int step=0; step<=steps; ++step) {
@@ -592,30 +602,6 @@ void halfCylinder(GLfloat radius, GLfloat height, int steps, GLuint texSurface, 
 		glVertex3f(height,radius*cos(angle),radius*sin(angle));
 	}
 	glEnd();
-
-	/*
-	// tampa de baixo, 2 vezes em direcoes diferentes
-	glNormal3f(1, 0, 0);
-	glBegin(GL_POLYGON);
-	for(int step=0; step<=steps; ++step) {
-		GLfloat angle = step*delta;
-		glTexCoord2d(radius*cos(angle),radius*sin(angle));
-		glVertex3f(0,radius*cos(angle),radius*sin(angle));
-	}
-	glEnd();
-	
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texBottom);
-	glNormal3f(-1, 0, 0);
-	glBegin(GL_POLYGON);
-	for(int step=0; step<=steps; ++step) {
-		GLfloat angle = (steps-step)*delta;
-		glTexCoord2d(radius*cos(angle),radius*sin(angle));
-		glVertex3f(0,radius*cos(angle),radius*sin(angle));
-	}
-	glEnd();
-	glDisable(GL_TEXTURE_2D);
-	*/
 	
 	// superficie curva, 2 vezes em direcoes diferentes
 	// dentro
@@ -628,21 +614,24 @@ void halfCylinder(GLfloat radius, GLfloat height, int steps, GLuint texSurface, 
 		GLfloat rsine2 = radius*sin(angle2);
 		GLfloat rcosine2 = radius*cos(angle2);
 
-		glNormal3f(height, rcosine1, rsine1);
+		glNormal3f(-height, -rcosine1, -rsine1);
 		glVertex3f(height, rcosine1, rsine1);
 
-		glNormal3f(height, rcosine2, rsine2);
+		glNormal3f(-height, -rcosine2, -rsine2);
 		glVertex3f(height, rcosine2, rsine2);
 
-		glNormal3f(0, rcosine2, rsine2);
+		glNormal3f(0, -rcosine2, -rsine2);
 		glVertex3f(0, rcosine2, rsine2);
 
-		glNormal3f(0, rcosine1, rsine1);
+		glNormal3f(0, -rcosine1, -rsine1);
 		glVertex3f(0, rcosine1, rsine1);
 	}
 	glEnd();
 
 	// fora
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 1 * 128);
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, texSurface);
 	glBegin(GL_QUADS);
@@ -1202,64 +1191,77 @@ void drawNightstand() {
 		glutSolidCube(1);	// rastilho
 	glPopMatrix();
 
-	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
-	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.9 * 128);
-	/*
-	glBindTexture(GL_TEXTURE_2D, textures[8]);
-	quad = gluNewQuadric();
-	gluQuadricTexture(quad, GLU_TRUE);
-	glPushMatrix();
-		glTranslatef(-1.5, 6.5, -20);
-		glRotatef(-90, 1, 0, 0);
-		gluCylinder(quad, 0.5, 0.5, 1.5, 12, 12);	//lata
-		glBindTexture(GL_TEXTURE_2D, textures[17]);
-		glTranslatef(0, 0, 1.5);
-		gluDisk(quad, 0, 0.5, 12, 1);		//parte de cima
-	glPopMatrix();
-	gluDeleteQuadric(quad);
-	*/
-
-	aux_count++;
-	GLfloat perc = aux_count / 600.0;
-	if (perc>1){
-		aux_count = 0;
-		perc = 0;
+	if(aux_frames < 600){
+		aux_frames++;
+		aux_angles[aux_state] = aux_frames / 600.0 * 90;
 	}
 
-	GLfloat aux_angle = perc * 90;
 	glPushMatrix();
-		glTranslatef(-0.75, 6.5, -20);
-		glRotatef(90-aux_angle, 0, 0, 1);
+		glTranslatef(-0.7, 6.5, -20);
+		glRotatef(90-aux_angles[0], 0, 0, 1);
 		glRotatef(90, 1, 0, 0);
-		glTranslatef(0, 0, -0.75);
-		halfCylinder(0.75, 2.25, 6, textures[8], textures[17], 2);
+		glTranslatef(0, 0, -0.8);
+		halfCylinder(0.8, 2.4, 8, textures[8], textures[17], 2);
 	glPopMatrix();
 
 	glPushMatrix();
-		glTranslatef(-2.25, 6.5, -20);
-		glRotatef(aux_angle, 0, 0, 1);
+		glTranslatef(-2.3, 6.5, -20);
+		glRotatef(aux_angles[0], 0, 0, 1);
 		glRotatef(-90, 0, 1, 0);
 		glRotatef(90, 0, 0, 1);
-		glTranslatef(0, 0, -0.75);
-		halfCylinder(0.75, 2.25, 6, textures[8], textures[17], 1);
+		glTranslatef(0, 0, -0.8);
+		halfCylinder(0.8, 2.4, 8, textures[8], textures[17], 1);
 	glPopMatrix();
+
+	glPushMatrix();
+		glTranslatef(-0.8, 6.5, -20);
+		glRotatef(90-aux_angles[1], 0, 0, 1);
+		glRotatef(90, 1, 0, 0);
+		glTranslatef(0, 0, -0.7);
+		halfCylinder(0.7, 2.1, 8, textures[8], textures[17], 2);
+	glPopMatrix();
+
+	glPushMatrix();
+		glTranslatef(-2.2, 6.5, -20);
+		glRotatef(aux_angles[1], 0, 0, 1);
+		glRotatef(-90, 0, 1, 0);
+		glRotatef(90, 0, 0, 1);
+		glTranslatef(0, 0, -0.7);
+		halfCylinder(0.7, 2.1, 8, textures[8], textures[17], 1);
+	glPopMatrix();
+
+	glPushMatrix();
+		glTranslatef(-0.9, 6.5, -20);
+		glRotatef(90-aux_angles[2], 0, 0, 1);
+		glRotatef(90, 1, 0, 0);
+		glTranslatef(0, 0, -0.6);
+		halfCylinder(0.6, 1.8, 8, textures[8], textures[17], 2);
+	glPopMatrix();
+
+	glPushMatrix();
+		glTranslatef(-2.1, 6.5, -20);
+		glRotatef(aux_angles[2], 0, 0, 1);
+		glRotatef(-90, 0, 1, 0);
+		glRotatef(90, 0, 0, 1);
+		glTranslatef(0, 0, -0.6);
+		halfCylinder(0.6, 1.8, 8, textures[8], textures[17], 1);
+	glPopMatrix();	
 
 	glPushMatrix();
 		glTranslatef(-1, 6.5, -20);
-		glRotatef(90-aux_angle, 0, 0, 1);
+		glRotatef(90-aux_angles[3], 0, 0, 1);
 		glRotatef(90, 1, 0, 0);
 		glTranslatef(0, 0, -0.5);
-		halfCylinder(0.5, 1.5, 6, textures[8], textures[17], 2);
+		halfCylinder(0.5, 1.5, 8, textures[8], textures[17], 2);
 	glPopMatrix();
 
 	glPushMatrix();
 		glTranslatef(-2, 6.5, -20);
-		glRotatef(aux_angle, 0, 0, 1);
+		glRotatef(aux_angles[3], 0, 0, 1);
 		glRotatef(-90, 0, 1, 0);
 		glRotatef(90, 0, 0, 1);
 		glTranslatef(0, 0, -0.5);
-		halfCylinder(0.5, 1.5, 6, textures[8], textures[17], 1);
+		halfCylinder(0.5, 1.5, 8, textures[8], textures[17], 1);
 	glPopMatrix();
 
 	glEnable(GL_TEXTURE_2D);
@@ -1330,8 +1332,8 @@ void display(void) {
 	applyKeys();
 	camera.render();
 	updateLights();
-	drawAxis();;
-	//drawWalls();
+	//drawAxis();;
+	drawWalls();
 	drawWardrobe();
 	drawBed();
 	drawSeat();
@@ -1372,14 +1374,14 @@ void keyDown(unsigned char key, int x, int y) {
 		case 27:		//ESC
 			exit(0);
 			break;
-		case 'M':
-		case 'm':
-			ignoreMouse = !ignoreMouse;
-			if (ignoreMouse)
-				glutSetCursor(GLUT_CURSOR_INHERIT);
-			else
-				glutSetCursor(GLUT_CURSOR_NONE);
+		case 'B':
+		case 'b':
+			if (aux_frames == 600 && aux_state<4){
+				aux_state++;
+				aux_frames = 0;
+			}
 			break;
+
 		case 'N':
 		case 'n':
 			day = !day;
@@ -1394,22 +1396,35 @@ void keyDown(unsigned char key, int x, int y) {
 				skyboxoffset = 6;
 			}
 			break;
+
+		case 'M':
+		case 'm':
+			ignoreMouse = !ignoreMouse;
+			if (ignoreMouse)
+				glutSetCursor(GLUT_CURSOR_INHERIT);
+			else
+				glutSetCursor(GLUT_CURSOR_NONE);
+			break;
+
 		case 'J':
 		case 'j':
 			// computer
 			break;
+
 		case 'K':
 		case 'k':
 			candleFlame = !candleFlame;
 			if (candleFlame) glEnable(GL_LIGHT2);
 			else glDisable(GL_LIGHT2);
 			break;
+
 		case 'L':
 		case 'l':
 			ceilingLamp = !ceilingLamp;
 			if (ceilingLamp) glEnable(GL_LIGHT0);
 			else glDisable(GL_LIGHT0);
 			break;
+
 		case 'W':
 		case 'w':
 			keyState[K_FRONT] = true;
