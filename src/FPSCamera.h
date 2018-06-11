@@ -6,6 +6,7 @@
 #define K_LEFT 2
 #define K_RIGHT 3
 #define MOVE_SPEED 0.2
+#define OBSERVER_SIZE 0.75
 
 struct Vector3 {
 	GLfloat x,y,z;

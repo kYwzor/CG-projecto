@@ -742,6 +742,12 @@ void drawWalls() {
 		glTranslatef(0, 29, 0);
 		cubeMesh(50, 1, 48, 0.5, 3, 3, textures[1], textures[1], textures[1]); //teto
 	glPopMatrix();
+		glPushMatrix();
+		glTranslatef(0, 14.5, 24.5);
+		cubeMesh(50, 30, 1, 0.5, 3, 3, textures[1], textures[1], textures[1]);	//parede do computador
+		glTranslatef(0, 0, -49);
+		cubeMesh(50, 30, 1, 0.5, 3, 3, textures[1], textures[1], textures[1]);	//parede da cabeceira
+	glPopMatrix();
 	glPushMatrix();
 		glTranslatef(25.5, 14.5, 0);
 		cubeMesh(1, 30, 50, 0.5, 3, 3, textures[1], textures[1], textures[1]); //parede da porta
@@ -765,13 +771,6 @@ void drawWalls() {
 	glPushMatrix();
 		glTranslatef(-25.5, 14.5, -12.5);
 		cubeMesh(1, 30, 25, 0.5, 1.5, 3, textures[1], textures[1], textures[1]);	//direita da janela
-	glPopMatrix();
-
-	glPushMatrix();
-		glTranslatef(0, 14.5, 24.5);
-		cubeMesh(50, 30, 1, 0.5, 3, 3, textures[1], textures[1], textures[1]);	//parede do computador
-		glTranslatef(0, 0, -49);
-		cubeMesh(50, 30, 1, 0.5, 3, 3, textures[1], textures[1], textures[1]);	//parede da cabeceira
 	glPopMatrix();
 
 	//janela
@@ -878,11 +877,11 @@ void drawBed(){
 	glPopMatrix();
 	glPushMatrix();
 		glTranslatef(-17, 5, -11);
-		cubeMesh(13, 1, 23, 1, 1, 1, textures[5], textures[5], textures[5]);	//armacao
+		cubeMesh(13, 1, 23, 1, 1, 1, textures[5], textures[5], textures[5]);		//armacao
 	glPopMatrix();
 	glPushMatrix();
 		glTranslatef(-17, 9.5, -22);
-		cubeMesh(13, 8, 1, 1, 1, 1, textures[5], textures[5], textures[5]);	//cabeceira
+		cubeMesh(13, 8, 1, 1, 1, 1, textures[5], textures[5], textures[5]);			//cabeceira
 
 	glPopMatrix();
 	
@@ -904,7 +903,6 @@ void drawSeat(){
 	glPushMatrix();
 		//pernas da cadeira
 		glTranslatef(-2.5, 2.5, 12);
-		//glScalef(1, 4, 1);
 		cubeMesh(1, 4, 1, 1, 1, 1, textures[13], textures[13], textures[13]);
 		glTranslatef(5, 0, 0);
 		cubeMesh(1, 4, 1, 1, 1, 1, textures[13], textures[13], textures[13]);
@@ -1189,8 +1187,8 @@ void drawNightstand() {
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.4 *128);
 	
 	glPushMatrix();
-		glTranslatef(-4, 3.5, -20);
-		cubeMesh(10, 6, 6, 1, 1, 1, textures[7], textures[7], textures[7]);	//mesa de cabeceira
+		glTranslatef(-3.5, 3.5, -20);
+		cubeMesh(11, 6, 6, 1, 1, 1, textures[7], textures[7], textures[7]);	//mesa de cabeceira
 	glPopMatrix();
 
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, halves);
@@ -1232,9 +1230,9 @@ void drawNightstand() {
 		aux_frames++;
 		aux_angles[aux_state] = aux_frames / (GLfloat)CAN_OPENING_FRAMES * 90;
 	}
-
+	//meias latas, das maiores para as menores
 	glPushMatrix();
-		glTranslatef(-0.7, 6.5, -20);
+		glTranslatef(-0.7, 6.5, -19);
 		glRotatef(90-aux_angles[0], 0, 0, 1);
 		glRotatef(90, 1, 0, 0);
 		glTranslatef(0, 0, -0.8);
@@ -1242,7 +1240,7 @@ void drawNightstand() {
 	glPopMatrix();
 
 	glPushMatrix();
-		glTranslatef(-2.3, 6.5, -20);
+		glTranslatef(-2.3, 6.5, -19);
 		glRotatef(aux_angles[0], 0, 0, 1);
 		glRotatef(-90, 0, 1, 0);
 		glRotatef(90, 0, 0, 1);
@@ -1251,7 +1249,7 @@ void drawNightstand() {
 	glPopMatrix();
 
 	glPushMatrix();
-		glTranslatef(-0.8, 6.5, -20);
+		glTranslatef(-0.8, 6.5, -19);
 		glRotatef(90-aux_angles[1], 0, 0, 1);
 		glRotatef(90, 1, 0, 0);
 		glTranslatef(0, 0, -0.7);
@@ -1259,7 +1257,7 @@ void drawNightstand() {
 	glPopMatrix();
 
 	glPushMatrix();
-		glTranslatef(-2.2, 6.5, -20);
+		glTranslatef(-2.2, 6.5, -19);
 		glRotatef(aux_angles[1], 0, 0, 1);
 		glRotatef(-90, 0, 1, 0);
 		glRotatef(90, 0, 0, 1);
@@ -1268,7 +1266,7 @@ void drawNightstand() {
 	glPopMatrix();
 
 	glPushMatrix();
-		glTranslatef(-0.9, 6.5, -20);
+		glTranslatef(-0.9, 6.5, -19);
 		glRotatef(90-aux_angles[2], 0, 0, 1);
 		glRotatef(90, 1, 0, 0);
 		glTranslatef(0, 0, -0.6);
@@ -1276,7 +1274,7 @@ void drawNightstand() {
 	glPopMatrix();
 
 	glPushMatrix();
-		glTranslatef(-2.1, 6.5, -20);
+		glTranslatef(-2.1, 6.5, -19);
 		glRotatef(aux_angles[2], 0, 0, 1);
 		glRotatef(-90, 0, 1, 0);
 		glRotatef(90, 0, 0, 1);
@@ -1285,7 +1283,7 @@ void drawNightstand() {
 	glPopMatrix();	
 
 	glPushMatrix();
-		glTranslatef(-1, 6.5, -20);
+		glTranslatef(-1, 6.5, -19);
 		glRotatef(90-aux_angles[3], 0, 0, 1);
 		glRotatef(90, 1, 0, 0);
 		glTranslatef(0, 0, -0.5);
@@ -1293,7 +1291,7 @@ void drawNightstand() {
 	glPopMatrix();
 
 	glPushMatrix();
-		glTranslatef(-2, 6.5, -20);
+		glTranslatef(-2, 6.5, -19);
 		glRotatef(aux_angles[3], 0, 0, 1);
 		glRotatef(-90, 0, 1, 0);
 		glRotatef(90, 0, 0, 1);
