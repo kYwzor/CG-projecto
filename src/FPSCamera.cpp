@@ -1,5 +1,17 @@
 #include "FPSCamera.h"
 #include "math.h"
+#include <algorithm>
+#include <stdio.h>
+
+
+
+Boundary boundaries[] = {
+	{25, 26, -24, 24},	//parede porta
+	{-26, -25, -24, 24},	//parede janela
+	{-25, 25, 24, 25},
+	{-25, 25, -26, -25},
+	{9.5, 24.5, 12.5, 23.5}
+};
 
 FPSCamera::FPSCamera() {
 	// Initializing all variables
@@ -48,7 +60,6 @@ void FPSCamera::move(int direction) {
 	int multiplier = 1;
 
 	Vector3 movement;
-	movement.y = 0;		// y never changes
 
 	if (direction == K_BACK || direction == K_RIGHT)
 		multiplier = -1;	//back and right are the negative sides
@@ -64,6 +75,24 @@ void FPSCamera::move(int direction) {
 	}
 
 	position.x += movement.x;
-	position.y += movement.y;
+	//y never changes
 	position.z += movement.z;
+	avoidCollisions();
+}
+
+void FPSCamera::avoidCollisions(){
+	for (Boundary b : boundaries){
+		if (position.x > b.xMin && position.x < b.xMax && position.z > b.zMin && position.z < b.zMax){
+			GLfloat xDeltaMin = b.xMin - position.x;
+			GLfloat xDeltaMax = b.xMax - position.x;
+			GLfloat xDelta = std::abs(xDeltaMin) < std::abs(xDeltaMax) ? xDeltaMin : xDeltaMax;
+
+			GLfloat zDeltaMin = b.zMin - position.z;
+			GLfloat zDeltaMax = b.zMax - position.z;
+			GLfloat zDelta = std::abs(zDeltaMin) < std::abs(zDeltaMax) ? zDeltaMin : zDeltaMax;
+
+			if (std::abs(xDelta) < std::abs(zDelta)) position.x += xDelta;
+			else position.z += zDelta;
+		}
+	}
 }

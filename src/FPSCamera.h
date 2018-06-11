@@ -11,6 +11,10 @@ struct Vector3 {
 	GLfloat x,y,z;
 };
 
+struct Boundary {
+	GLfloat xMin, xMax, zMin, zMax;
+};
+
 class FPSCamera {
 	public:
 		GLfloat xAngle, yAngle;
@@ -21,4 +25,5 @@ class FPSCamera {
 		void rotateVertical (GLfloat angle);
 		void render ();
 		void move (int direction);
+		void avoidCollisions();
 };
