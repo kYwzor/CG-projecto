@@ -41,7 +41,7 @@ GLfloat xCenter = (GLfloat)windowWidth/2;
 GLfloat yCenter = (GLfloat)windowHeight/2;
 
 RgbImage img;
-GLuint textures[17];
+GLuint textures[18];
 
 GLuint skybox[12];
 int skyboxoffset = 6;
@@ -52,6 +52,8 @@ int currentflame = 0;
 
 bool ceilingLamp = true;
 bool candleFlame = true;
+
+int aux_count = 0;
 
 void initLights(){
 	GLfloat luzGlobalCor[]={0,0,0,1}; 
@@ -79,7 +81,7 @@ void initLights(){
 	glLightfv(GL_LIGHT2, GL_AMBIENT, yellowish);
 	glLightfv(GL_LIGHT2, GL_DIFFUSE, yellowish);
 	glLightfv(GL_LIGHT2, GL_SPECULAR, yellowish);
-	glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1.4);
+	glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1.8);
 	glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, 0);
 	glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 0.02);
 	glEnable(GL_LIGHT2);	//luz vela
@@ -102,7 +104,7 @@ void updateLights(){
 }
 
 void loadTextures() {
-	glGenTextures(17, textures);
+	glGenTextures(18, textures);
 
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
 	img.LoadBmpFile("textures/woodfloor.bmp");
@@ -298,6 +300,18 @@ void loadTextures() {
 
 	glBindTexture(GL_TEXTURE_2D, textures[16]);
 	img.LoadBmpFile("textures/wax.bmp");
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
+
+	glBindTexture(GL_TEXTURE_2D, textures[17]);
+	img.LoadBmpFile("textures/latatampa.bmp");
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -552,6 +566,115 @@ void cubeMesh(float scaleX, float scaleY, float scaleZ, float dim, float repeatS
 		glPopMatrix();
 		glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
+}
+
+void halfCylinder(GLfloat radius, GLfloat height, int steps, GLuint texSurface, GLuint texTop, GLuint texBottom, GLfloat version){
+	GLfloat delta = 3.14159265359/steps;
+
+	// tampa de cima, 2 vezes em direcoes diferentes
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texTop);
+	glNormal3f(1, 0, 0);
+	glBegin(GL_POLYGON);
+	for(int step=0; step<=steps; ++step) {
+		GLfloat angle = step*delta;
+		glTexCoord2d(cos(angle - (3.14159265359*2)/version) * 0.5 + 0.5, sin(angle - (3.14159265359*2)/version) * 0.5 + 0.5);
+		glVertex3f(height,radius*cos(angle),radius*sin(angle));
+	}
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
+
+	glNormal3f(-1, 0, 0);
+	glBegin(GL_POLYGON);
+	for(int step=0; step<=steps; ++step) {
+		GLfloat angle = (steps-step)*delta;
+		glTexCoord2d(radius*cos(angle),radius*sin(angle));
+		glVertex3f(height,radius*cos(angle),radius*sin(angle));
+	}
+	glEnd();
+
+	/*
+	// tampa de baixo, 2 vezes em direcoes diferentes
+	glNormal3f(1, 0, 0);
+	glBegin(GL_POLYGON);
+	for(int step=0; step<=steps; ++step) {
+		GLfloat angle = step*delta;
+		glTexCoord2d(radius*cos(angle),radius*sin(angle));
+		glVertex3f(0,radius*cos(angle),radius*sin(angle));
+	}
+	glEnd();
+	
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texBottom);
+	glNormal3f(-1, 0, 0);
+	glBegin(GL_POLYGON);
+	for(int step=0; step<=steps; ++step) {
+		GLfloat angle = (steps-step)*delta;
+		glTexCoord2d(radius*cos(angle),radius*sin(angle));
+		glVertex3f(0,radius*cos(angle),radius*sin(angle));
+	}
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
+	*/
+	
+	// superficie curva, 2 vezes em direcoes diferentes
+	// dentro
+	glBegin(GL_QUADS);
+	for(int step=0; step<steps; ++step) {
+		GLfloat angle1 = step*delta;
+		GLfloat angle2 = (step+1)*delta;
+		GLfloat rsine1 = radius*sin(angle1);
+		GLfloat rcosine1 = radius*cos(angle1);
+		GLfloat rsine2 = radius*sin(angle2);
+		GLfloat rcosine2 = radius*cos(angle2);
+
+		glNormal3f(height, rcosine1, rsine1);
+		glVertex3f(height, rcosine1, rsine1);
+
+		glNormal3f(height, rcosine2, rsine2);
+		glVertex3f(height, rcosine2, rsine2);
+
+		glNormal3f(0, rcosine2, rsine2);
+		glVertex3f(0, rcosine2, rsine2);
+
+		glNormal3f(0, rcosine1, rsine1);
+		glVertex3f(0, rcosine1, rsine1);
+	}
+	glEnd();
+
+	// fora
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texSurface);
+	glBegin(GL_QUADS);
+	for(int step=0; step<steps; ++step) {
+		GLfloat angle1 = step*delta;
+		GLfloat angle2 = (step+1)*delta;
+		GLfloat rsine1 = radius*sin(angle1);
+		GLfloat rcosine1 = radius*cos(angle1);
+		GLfloat rsine2 = radius*sin(angle2);
+		GLfloat rcosine2 = radius*cos(angle2);
+
+		GLfloat texpos1 = 0.5 * (step/(GLfloat)steps) + 1/version;
+		GLfloat texpos2 = 0.5 * ((step+1)/(GLfloat)steps) + 1/version;
+
+		glNormal3f(0, rcosine1, rsine1);
+		glTexCoord2d(texpos1, 0);
+		glVertex3f(0, rcosine1, rsine1);
+
+		glNormal3f(0, rcosine2, rsine2);
+		glTexCoord2d(texpos2, 0);
+		glVertex3f(0, rcosine2, rsine2);
+
+		glNormal3f(height, rcosine2, rsine2);
+		glTexCoord2d(texpos2, 1);
+		glVertex3f(height, rcosine2, rsine2);
+
+		glNormal3f(height, rcosine1, rsine1);
+		glTexCoord2d(texpos1, 1);
+		glVertex3f(height, rcosine1, rsine1);
+	}
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
 }
 
 void drawAxis() {
@@ -829,13 +952,16 @@ void drawObjects(){
 		glTranslatef(0, 13, 22);
 		cubeMesh(10, 7, 1, 1, 1, 1, textures[9], textures[10], textures[10]); //monitor
 	glPopMatrix();
+
+	glEnable(GL_TEXTURE_2D);
 	glPushMatrix();
 		glTranslatef(0, 13, 22.51);
 		glScalef(10, 7, 1);
-		glEnable(GL_TEXTURE_2D);
+		glNormal3f(0, 0, 1);
 		squareMesh(10, 7, 20, 1);	//back
-		glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
+	glDisable(GL_TEXTURE_2D);
+
 	glPushMatrix();
 		glTranslatef(0, 9, 22);
 		cubeMesh(7, 1, 0.5, 1, 10, 10, textures[10], textures[10], textures[10]);
@@ -1079,6 +1205,7 @@ void drawNightstand() {
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.9 * 128);
+	/*
 	glBindTexture(GL_TEXTURE_2D, textures[8]);
 	quad = gluNewQuadric();
 	gluQuadricTexture(quad, GLU_TRUE);
@@ -1086,21 +1213,57 @@ void drawNightstand() {
 		glTranslatef(-1.5, 6.5, -20);
 		glRotatef(-90, 1, 0, 0);
 		gluCylinder(quad, 0.5, 0.5, 1.5, 12, 12);	//lata
-		//glRotatef(180, 1, 0, 0);
-		//gluDisk(quad, 0, 0.5, 8, 1);
-		//glRotatef(180, 1, 0, 0);
-
-		glDisable(GL_TEXTURE_2D);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, halves);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, halves);
-		glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.8 * 128);
+		glBindTexture(GL_TEXTURE_2D, textures[17]);
 		glTranslatef(0, 0, 1.5);
 		gluDisk(quad, 0, 0.5, 12, 1);		//parte de cima
 	glPopMatrix();
 	gluDeleteQuadric(quad);
+	*/
+
+	aux_count++;
+	GLfloat perc = aux_count / 600.0;
+	if (perc>1){
+		aux_count = 0;
+		perc = 0;
+	}
+
+	GLfloat aux_x = perc;
+	GLfloat aux_y = perc;
+	GLfloat aux_angle = perc * 90;
+	glPushMatrix();
+		glTranslatef(-1.5 + aux_x, 6.5 + aux_y, -20);
+		glRotatef(90-aux_angle, 0, 0, 1);
+		glRotatef(90, 1, 0, 0);
+		halfCylinder(1, 3, 6, textures[8], textures[17], textures[17], 2);
+	glPopMatrix();
+
+	glPushMatrix();
+		glTranslatef(-1.5 - aux_x, 6.5 + aux_y, -20);
+		glRotatef(aux_angle, 0, 0, 1);
+		glRotatef(-90, 0, 1, 0);
+		glRotatef(90, 0, 0, 1);
+		halfCylinder(1, 3, 6, textures[8], textures[17], textures[17], 1);
+	glPopMatrix();
+
+	aux_x = perc * 0.5;
+	aux_y = perc * 0.5;
+	aux_angle = perc * 90;
+	glPushMatrix();
+		glTranslatef(-1.5 + aux_x, 6.5 + aux_y, -20);
+		glRotatef(90-aux_angle, 0, 0, 1);
+		glRotatef(90, 1, 0, 0);
+		halfCylinder(0.5, 1.5, 6, textures[8], textures[17], textures[17], 2);
+	glPopMatrix();
+
+	glPushMatrix();
+		glTranslatef(-1.5 - aux_x, 6.5 + aux_y, -20);
+		glRotatef(aux_angle, 0, 0, 1);
+		glRotatef(-90, 0, 1, 0);
+		glRotatef(90, 0, 0, 1);
+		halfCylinder(0.5, 1.5, 6, textures[8], textures[17], textures[17], 1);
+	glPopMatrix();
 
 	if(candleFlame){
-		glEnable(GL_TEXTURE_2D);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		glBindTexture(GL_TEXTURE_2D, flame[currentflame]);
@@ -1117,8 +1280,8 @@ void drawNightstand() {
 			glEnd();
 		glPopMatrix();
 		glDisable(GL_BLEND);
-		glDisable(GL_TEXTURE_2D);
 	}
+	glDisable(GL_TEXTURE_2D);
 }
 
 void drawGlass() {
@@ -1183,8 +1346,6 @@ void display(void) {
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 	glEnable(GL_COLOR_MATERIAL);
 	*/
-
-	//cubeMesh(40, 1, 40, 1, textures[1], 4, 4);
 
 	glutSwapBuffers();
 }
