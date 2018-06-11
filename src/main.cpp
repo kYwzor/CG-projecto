@@ -32,6 +32,7 @@ Movement:
 #define GREEN 		0.0, 1.0, 0.0, 1.0
 #define WHITE 		1.0, 1.0, 1.0, 1.0
 #define BLACK 		0.0, 0.0, 0.0, 1.0
+#define CAN_OPENING_FRAMES 300
 
 FPSCamera camera;
 bool ignoreMouse = false;
@@ -42,7 +43,7 @@ GLfloat xCenter = (GLfloat)windowWidth/2;
 GLfloat yCenter = (GLfloat)windowHeight/2;
 
 RgbImage img;
-GLuint textures[18];
+GLuint textures[21];
 
 GLuint skybox[12];
 int skyboxoffset = 6;
@@ -54,7 +55,7 @@ int currentflame = 0;
 bool ceilingLamp = true;
 bool candleFlame = true;
 
-int aux_frames = 600;
+int aux_frames = CAN_OPENING_FRAMES;
 int aux_state = -1;
 GLfloat aux_angles[] = {0, 0, 0, 0};
 
@@ -107,7 +108,7 @@ void updateLights(){
 }
 
 void loadTextures() {
-	glGenTextures(18, textures);
+	glGenTextures(21, textures);
 
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
 	img.LoadBmpFile("textures/woodfloor.bmp");
@@ -206,7 +207,7 @@ void loadTextures() {
 		img.ImageData());
 
 	glBindTexture(GL_TEXTURE_2D, textures[8]);
-	img.LoadBmpFile("textures/can.bmp");
+	img.LoadBmpFile("textures/cocacola.bmp");
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -315,6 +316,42 @@ void loadTextures() {
 
 	glBindTexture(GL_TEXTURE_2D, textures[17]);
 	img.LoadBmpFile("textures/latatampa.bmp");
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
+
+	glBindTexture(GL_TEXTURE_2D, textures[18]);
+	img.LoadBmpFile("textures/pepsi.bmp");
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
+
+	glBindTexture(GL_TEXTURE_2D, textures[19]);
+	img.LoadBmpFile("textures/fanta.bmp");
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+	img.GetNumCols(),
+		img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		img.ImageData());
+
+	glBindTexture(GL_TEXTURE_2D, textures[20]);
+	img.LoadBmpFile("textures/sprite.bmp");
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -1191,9 +1228,9 @@ void drawNightstand() {
 		glutSolidCube(1);	// rastilho
 	glPopMatrix();
 
-	if(aux_frames < 600){
+	if(aux_frames < CAN_OPENING_FRAMES){
 		aux_frames++;
-		aux_angles[aux_state] = aux_frames / 600.0 * 90;
+		aux_angles[aux_state] = aux_frames / (GLfloat)CAN_OPENING_FRAMES * 90;
 	}
 
 	glPushMatrix();
@@ -1218,7 +1255,7 @@ void drawNightstand() {
 		glRotatef(90-aux_angles[1], 0, 0, 1);
 		glRotatef(90, 1, 0, 0);
 		glTranslatef(0, 0, -0.7);
-		halfCylinder(0.7, 2.1, 8, textures[8], textures[17], 2);
+		halfCylinder(0.7, 2.1, 8, textures[18], textures[17], 2);
 	glPopMatrix();
 
 	glPushMatrix();
@@ -1227,7 +1264,7 @@ void drawNightstand() {
 		glRotatef(-90, 0, 1, 0);
 		glRotatef(90, 0, 0, 1);
 		glTranslatef(0, 0, -0.7);
-		halfCylinder(0.7, 2.1, 8, textures[8], textures[17], 1);
+		halfCylinder(0.7, 2.1, 8, textures[18], textures[17], 1);
 	glPopMatrix();
 
 	glPushMatrix();
@@ -1235,7 +1272,7 @@ void drawNightstand() {
 		glRotatef(90-aux_angles[2], 0, 0, 1);
 		glRotatef(90, 1, 0, 0);
 		glTranslatef(0, 0, -0.6);
-		halfCylinder(0.6, 1.8, 8, textures[8], textures[17], 2);
+		halfCylinder(0.6, 1.8, 8, textures[19], textures[17], 2);
 	glPopMatrix();
 
 	glPushMatrix();
@@ -1244,7 +1281,7 @@ void drawNightstand() {
 		glRotatef(-90, 0, 1, 0);
 		glRotatef(90, 0, 0, 1);
 		glTranslatef(0, 0, -0.6);
-		halfCylinder(0.6, 1.8, 8, textures[8], textures[17], 1);
+		halfCylinder(0.6, 1.8, 8, textures[19], textures[17], 1);
 	glPopMatrix();	
 
 	glPushMatrix();
@@ -1252,7 +1289,7 @@ void drawNightstand() {
 		glRotatef(90-aux_angles[3], 0, 0, 1);
 		glRotatef(90, 1, 0, 0);
 		glTranslatef(0, 0, -0.5);
-		halfCylinder(0.5, 1.5, 8, textures[8], textures[17], 2);
+		halfCylinder(0.5, 1.5, 8, textures[20], textures[17], 2);
 	glPopMatrix();
 
 	glPushMatrix();
@@ -1261,7 +1298,7 @@ void drawNightstand() {
 		glRotatef(-90, 0, 1, 0);
 		glRotatef(90, 0, 0, 1);
 		glTranslatef(0, 0, -0.5);
-		halfCylinder(0.5, 1.5, 8, textures[8], textures[17], 1);
+		halfCylinder(0.5, 1.5, 8, textures[20], textures[17], 1);
 	glPopMatrix();
 
 	glEnable(GL_TEXTURE_2D);
@@ -1376,7 +1413,7 @@ void keyDown(unsigned char key, int x, int y) {
 			break;
 		case 'B':
 		case 'b':
-			if (aux_frames == 600 && aux_state<4){
+			if (aux_frames == CAN_OPENING_FRAMES && aux_state<4){
 				aux_state++;
 				aux_frames = 0;
 			}
