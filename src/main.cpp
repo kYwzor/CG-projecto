@@ -6,6 +6,8 @@ ESC: exit
 B: open cans
 N: cycle through day/night
 M: ignore mouse
+G: ignore collisions
+H: show mesh
 J: reboot computer WIP
 K: control candle flame
 L: control ceiling light
@@ -32,7 +34,7 @@ Movement:
 #define GREEN 		0.0, 1.0, 0.0, 1.0
 #define WHITE 		1.0, 1.0, 1.0, 1.0
 #define BLACK 		0.0, 0.0, 0.0, 1.0
-#define CAN_OPENING_FRAMES 300
+#define CAN_OPENING_FRAMES 150
 
 FPSCamera camera;
 bool ignoreMouse = false;
@@ -48,6 +50,7 @@ GLuint textures[21];
 GLuint skybox[12];
 int skyboxoffset = 6;
 bool day = false;
+bool showMesh = false;
 
 GLuint flame[34];
 int currentflame = 0;
@@ -519,10 +522,8 @@ void loadFlame() {
 
 void squareMesh(int dimX, int dimY, float repeatS, float repeatT) {
 	int i, j;
-	/*
 	int x = 0;
-	GLfloat stuff[6][4] = {BLUE, RED, YELLOW, GREEN, WHITE, BLACK};
-	*/
+	GLfloat meshColoring[6][4] = {BLUE, RED, YELLOW, GREEN, WHITE, BLACK};
 	
 	if(!dimX) dimX = 1;
 	if(!dimY) dimY = 1;
@@ -531,10 +532,11 @@ void squareMesh(int dimX, int dimY, float repeatS, float repeatT) {
 		glBegin(GL_QUADS);
 			for (i=0;i<dimY;i++) {
 				for (j=0;j<dimX;j++) {
-					/*
-					glColor4fv(stuff[x]);
-					x = (x+1) % 6;
-					*/
+					if(showMesh){
+						glColor4fv(meshColoring[x]);
+						x = (x+1) % 6;						
+					}
+
 					glTexCoord2f(j*repeatS/dimX, i*repeatT/dimY);
 					glVertex3d((float)j/dimX,(float)i/dimY,0);
 
@@ -1044,17 +1046,17 @@ void drawObjects(){
 	glPopMatrix();
 
 	glPushMatrix();
-		glTranslatef(2, 5.26, 10);
+		glTranslatef(2, 5.25, 10);
 		glRotatef(-90, 1, 0, 0);
 		
 		gluCylinder(quad, 0.75, 0.75, 1.5, 12, 16);	//chavena fora
 		gluQuadricOrientation(quad, GLU_INSIDE);	
 		gluCylinder(quad, 0.6, 0.6, 1.5, 12, 16);	//chavena dentro
 		gluQuadricOrientation(quad, GLU_OUTSIDE);
+		glTranslatef(0, 0, 0.15);
 		gluDisk(quad, 0, 0.6, 12, 1);				//fundo
-		glTranslatef(0, 0, 1.5);
+		glTranslatef(0, 0, 1.35);
 		gluDisk(quad, 0.6, 0.75, 12, 1);			//rebordo
-		glTranslatef(0, 0, -0.5);
 
 		GLfloat brown[] = {0.423, 0.3, 0.234, 0.8};
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brown);
@@ -1062,6 +1064,7 @@ void drawObjects(){
 		glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glTranslatef(0, 0, -0.5);
 		gluDisk(quad, 0, 0.6, 12, 1);				//superificie do liquido
 		glDisable(GL_BLEND);
 	glPopMatrix();
@@ -1114,16 +1117,13 @@ void drawCeilingLamp(){
 	gluDeleteQuadric(quad);
 
 	quad = gluNewQuadric();
-	if (ceilingLamp){
-		glDisable(GL_LIGHTING);
-		glColor4f(WHITE);
-	}
+	if (ceilingLamp) glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, ones);
 	glPushMatrix();
 		glTranslatef(0, 21, 0);
 		glScalef(0.6, 1, 0.6);
 		gluSphere(quad, 0.5, 10, 10);	//lampada
 	glPopMatrix();
-	if (ceilingLamp) glEnable(GL_LIGHTING);
+	if (ceilingLamp) glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, zeros);
 	gluDeleteQuadric(quad);
 }
 
@@ -1379,11 +1379,6 @@ void display(void) {
 	drawGlass();
 	drawNightstand();
 
-	/*
-	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-	glEnable(GL_COLOR_MATERIAL);
-	*/
-
 	glutSwapBuffers();
 }
 
@@ -1441,9 +1436,26 @@ void keyDown(unsigned char key, int x, int y) {
 				glutSetCursor(GLUT_CURSOR_NONE);
 			break;
 
+		case 'G':
+		case 'g':
+			camera.ignoreCollisions = !camera.ignoreCollisions;
+			break;
+
+		case 'H':
+		case 'h':
+			showMesh = !showMesh;
+			if (showMesh){
+				glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+				glEnable(GL_COLOR_MATERIAL);				
+			}
+			else {
+				glDisable(GL_COLOR_MATERIAL);
+			}
+			break;
+
 		case 'J':
 		case 'j':
-			// computer
+			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			break;
 
 		case 'K':

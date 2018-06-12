@@ -29,6 +29,8 @@ FPSCamera::FPSCamera() {
 	
 	xAngle = 0.0;
 	yAngle = 0.0;
+
+	ignoreCollisions = false;
 }
 
 void FPSCamera::rotateHorizontal (GLfloat angle) {
@@ -81,7 +83,7 @@ void FPSCamera::move(int direction) {
 	position.x += movement.x;
 	//y never changes
 	position.z += movement.z;
-	avoidCollisions();
+	if(!ignoreCollisions) avoidCollisions();
 }
 
 void FPSCamera::avoidCollisions(){

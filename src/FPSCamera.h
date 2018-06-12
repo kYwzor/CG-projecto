@@ -21,6 +21,7 @@ class FPSCamera {
 		GLfloat xAngle, yAngle;
 		Vector3 position;
 		Vector3 forward;
+		bool ignoreCollisions;
 		FPSCamera();
 		void rotateHorizontal (GLfloat angle);
 		void rotateVertical (GLfloat angle);
