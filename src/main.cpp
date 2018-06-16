@@ -1486,8 +1486,13 @@ void keyDown(unsigned char key, int x, int y) {
 		case 'M':
 		case 'm':
 			ignoreMouse = !ignoreMouse;
-			if (ignoreMouse)
+			if (ignoreMouse){
 				glutSetCursor(GLUT_CURSOR_INHERIT);
+				glMatrixMode(GL_PROJECTION);
+				glLoadIdentity();
+				gluPerspective(VIEWING_ANGLE,(GLdouble)windowWidth/windowHeight, NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE); //adapt perspective to new window
+				glMatrixMode(GL_MODELVIEW);
+			}
 			else
 				glutSetCursor(GLUT_CURSOR_NONE);
 			break;
@@ -1589,6 +1594,7 @@ void mouseMovement(int x, int y) {
 }
 
 void mouseClick(int button, int state, int x, int y){
+	if (ignoreMouse) return;
 	if(button == GLUT_RIGHT_BUTTON){
 		if (state == GLUT_DOWN){
 			glMatrixMode(GL_PROJECTION);
