@@ -7,8 +7,8 @@ B: open cans
 N: cycle through day/night
 M: ignore mouse
 G: ignore collisions
-H: show mesh
-J: reboot computer WIP
+H: cycle between display modes (normal, mesh, lines)
+J: reboot computer
 K: control candle flame
 L: control ceiling light
 
@@ -35,6 +35,7 @@ Movement:
 #define WHITE 		1.0, 1.0, 1.0, 1.0
 #define BLACK 		0.0, 0.0, 0.0, 1.0
 #define CAN_OPENING_FRAMES 150
+#define SCREEN_BOOT_FRAMES 600
 
 FPSCamera camera;
 bool ignoreMouse = false;
@@ -50,10 +51,14 @@ GLuint textures[21];
 GLuint skybox[12];
 int skyboxoffset = 6;
 bool day = false;
-bool showMesh = false;
+int displayMode = 0;
 
 GLuint flame[34];
 int currentflame = 0;
+
+GLuint screenBoot[18];
+int currentBootFrame = SCREEN_BOOT_FRAMES;
+bool checkBoot = false;
 
 bool ceilingLamp = true;
 bool candleFlame = true;
@@ -520,6 +525,24 @@ void loadFlame() {
 	}
 }
 
+void loadScreenBoot() {
+	glGenTextures(18, screenBoot);
+	char aux[32];
+	for (int i=0; i<18; i++){
+		glBindTexture(GL_TEXTURE_2D, screenBoot[i]);
+		sprintf(aux, "screenboot/_%04d_screen.bmp", i);
+		img.LoadBmpFile(aux);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+		img.GetNumCols(),
+			img.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+			img.ImageData());
+	}
+}
+
 void squareMesh(int dimX, int dimY, float repeatS, float repeatT) {
 	int i, j;
 	int x = 0;
@@ -532,7 +555,7 @@ void squareMesh(int dimX, int dimY, float repeatS, float repeatT) {
 		glBegin(GL_QUADS);
 			for (i=0;i<dimY;i++) {
 				for (j=0;j<dimX;j++) {
-					if(showMesh){
+					if(displayMode == 1){
 						glColor4fv(meshColoring[x]);
 						x = (x+1) % 6;						
 					}
@@ -986,11 +1009,33 @@ void drawObjects(){
 		glNormal3f(0, 0, 1);
 		squareMesh(10, 7, 20, 1);	//back
 	glPopMatrix();
+
+	if(currentBootFrame != SCREEN_BOOT_FRAMES){
+		GLfloat dimmed[] = {0.1, 0.1, 0.1, 1};
+		glLightfv(GL_LIGHT1, GL_AMBIENT, dimmed);
+		glLightfv(GL_LIGHT1, GL_DIFFUSE, dimmed);
+		glLightfv(GL_LIGHT1, GL_SPECULAR, dimmed);
+		currentBootFrame++;
+		glBindTexture(GL_TEXTURE_2D, screenBoot[(currentBootFrame/5)%18]);
+		glPushMatrix();
+		glTranslatef(0, 13, 21.475);
+			glScalef(9.4, 6.2, 1);
+			glRotatef(180, 0, 1, 0);
+			squareMesh(10, 7, 1, 1);
+		glPopMatrix();
+	}
+	else if (checkBoot) {
+		GLfloat blue[] = {0, 0, 1, 1};
+		glLightfv(GL_LIGHT1, GL_AMBIENT, blue);
+		glLightfv(GL_LIGHT1, GL_DIFFUSE, blue);
+		glLightfv(GL_LIGHT1, GL_SPECULAR, blue);
+		checkBoot = false;
+	}
 	glDisable(GL_TEXTURE_2D);
 
 	glPushMatrix();
 		glTranslatef(0, 9, 22);
-		cubeMesh(7, 1, 0.5, 1, 10, 10, textures[10], textures[10], textures[10]);
+		cubeMesh(7, 1, 0.5, 1, 10, 10, textures[10], textures[10], textures[10]);	//base monitor
 	glPopMatrix();
 	
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
@@ -1049,14 +1094,14 @@ void drawObjects(){
 		glTranslatef(2, 5.25, 10);
 		glRotatef(-90, 1, 0, 0);
 		
-		gluCylinder(quad, 0.75, 0.75, 1.5, 12, 16);	//chavena fora
+		gluCylinder(quad, 0.75, 0.75, 1.5, 16, 4);	//chavena fora
 		gluQuadricOrientation(quad, GLU_INSIDE);	
-		gluCylinder(quad, 0.6, 0.6, 1.5, 12, 16);	//chavena dentro
+		gluCylinder(quad, 0.6, 0.6, 1.5, 16, 4);	//chavena dentro
 		gluQuadricOrientation(quad, GLU_OUTSIDE);
 		glTranslatef(0, 0, 0.15);
-		gluDisk(quad, 0, 0.6, 12, 1);				//fundo
+		gluDisk(quad, 0, 0.6, 16, 1);				//fundo
 		glTranslatef(0, 0, 1.35);
-		gluDisk(quad, 0.6, 0.75, 12, 1);			//rebordo
+		gluDisk(quad, 0.6, 0.75, 16, 1);			//rebordo
 
 		GLfloat brown[] = {0.423, 0.3, 0.234, 0.8};
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, brown);
@@ -1065,7 +1110,7 @@ void drawObjects(){
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glTranslatef(0, 0, -0.5);
-		gluDisk(quad, 0, 0.6, 12, 1);				//superificie do liquido
+		gluDisk(quad, 0, 0.6, 16, 1);				//superificie do liquido
 		glDisable(GL_BLEND);
 	glPopMatrix();
 	gluDeleteQuadric(quad);
@@ -1109,9 +1154,9 @@ void drawCeilingLamp(){
 		glTranslatef(0, 20, 0);
 		glRotatef(-90, 1, 0, 0);
 		
-		gluCylinder(quad, 2, 2, 2, 12, 16);
+		gluCylinder(quad, 2, 2, 2, 24, 4);
 		gluQuadricOrientation(quad, GLU_INSIDE);
-		gluCylinder(quad, 2, 2, 2, 12, 16);
+		gluCylinder(quad, 2, 2, 2, 24, 4);
 	glPopMatrix();
 	glDisable(GL_TEXTURE_2D);
 	gluDeleteQuadric(quad);
@@ -1198,9 +1243,9 @@ void drawNightstand() {
 	glPushMatrix();
 		glTranslatef(-6, 6.5, -20);
 		glRotatef(-90, 1, 0, 0);
-		gluCylinder(quad, 1, 1, 0.5, 12, 12);	//base da vela
+		gluCylinder(quad, 1, 1, 0.5, 24, 2);	//base da vela
 		glTranslatef(0, 0, 0.5);
-		gluDisk(quad, 0, 1, 12, 1);		//parte de cima
+		gluDisk(quad, 0, 1, 24, 1);		//parte de cima
 	glPopMatrix();
 	gluDeleteQuadric(quad);
 
@@ -1236,7 +1281,7 @@ void drawNightstand() {
 		glRotatef(90-aux_angles[0], 0, 0, 1);
 		glRotatef(90, 1, 0, 0);
 		glTranslatef(0, 0, -0.8);
-		halfCylinder(0.8, 2.4, 8, textures[8], textures[17], 2);
+		halfCylinder(0.8, 2.4, 12, textures[8], textures[17], 2);
 	glPopMatrix();
 
 	glPushMatrix();
@@ -1245,7 +1290,7 @@ void drawNightstand() {
 		glRotatef(-90, 0, 1, 0);
 		glRotatef(90, 0, 0, 1);
 		glTranslatef(0, 0, -0.8);
-		halfCylinder(0.8, 2.4, 8, textures[8], textures[17], 1);
+		halfCylinder(0.8, 2.4, 12, textures[8], textures[17], 1);
 	glPopMatrix();
 
 	glPushMatrix();
@@ -1253,7 +1298,7 @@ void drawNightstand() {
 		glRotatef(90-aux_angles[1], 0, 0, 1);
 		glRotatef(90, 1, 0, 0);
 		glTranslatef(0, 0, -0.7);
-		halfCylinder(0.7, 2.1, 8, textures[18], textures[17], 2);
+		halfCylinder(0.7, 2.1, 12, textures[18], textures[17], 2);
 	glPopMatrix();
 
 	glPushMatrix();
@@ -1262,7 +1307,7 @@ void drawNightstand() {
 		glRotatef(-90, 0, 1, 0);
 		glRotatef(90, 0, 0, 1);
 		glTranslatef(0, 0, -0.7);
-		halfCylinder(0.7, 2.1, 8, textures[18], textures[17], 1);
+		halfCylinder(0.7, 2.1, 12, textures[18], textures[17], 1);
 	glPopMatrix();
 
 	glPushMatrix();
@@ -1270,7 +1315,7 @@ void drawNightstand() {
 		glRotatef(90-aux_angles[2], 0, 0, 1);
 		glRotatef(90, 1, 0, 0);
 		glTranslatef(0, 0, -0.6);
-		halfCylinder(0.6, 1.8, 8, textures[19], textures[17], 2);
+		halfCylinder(0.6, 1.8, 12, textures[19], textures[17], 2);
 	glPopMatrix();
 
 	glPushMatrix();
@@ -1443,19 +1488,26 @@ void keyDown(unsigned char key, int x, int y) {
 
 		case 'H':
 		case 'h':
-			showMesh = !showMesh;
-			if (showMesh){
+			displayMode = (displayMode + 1) % 3;
+			if (displayMode == 0){
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			}
+			else if (displayMode == 1){
 				glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 				glEnable(GL_COLOR_MATERIAL);				
 			}
 			else {
 				glDisable(GL_COLOR_MATERIAL);
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			}
 			break;
 
 		case 'J':
 		case 'j':
-			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			if (currentBootFrame == SCREEN_BOOT_FRAMES){
+				currentBootFrame = 0;
+				checkBoot = true;
+			}
 			break;
 
 		case 'K':
@@ -1546,6 +1598,7 @@ void initialization() {
 	loadTextures();
 	loadSkybox();
 	loadFlame();
+	loadScreenBoot();
 }
 
 int main(int argc, char **argv) {
