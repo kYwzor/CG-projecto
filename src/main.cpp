@@ -12,12 +12,16 @@ J: reboot computer
 K: control candle flame
 L: control ceiling light
 
+Mouse:
+	movement: look around
+	right click: zoom in
+
 Movement:
 	W : move forwards
 	S : move backwards
 	A : move left
 	D : move right
-	mouse: look around
+
 
 **********************************************/
 #include "FPSCamera.h"
@@ -1379,7 +1383,7 @@ void drawFlame() {
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128);
-	
+
 	glEnable(GL_TEXTURE_2D);
 	if(candleFlame){
 		glEnable(GL_BLEND);
