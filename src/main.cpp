@@ -1243,13 +1243,13 @@ void drawNightstand() {
 	glPushMatrix();
 		glTranslatef(-6, 6.5, -20);
 		glRotatef(-90, 1, 0, 0);
-		gluCylinder(quad, 1, 1, 0.5, 24, 2);	//base da vela
+		gluCylinder(quad, 1, 1, 0.5, 24, 2);		//base da vela
 		glTranslatef(0, 0, 0.5);
-		gluDisk(quad, 0, 1, 24, 1);		//parte de cima
+		gluDisk(quad, 0, 1, 24, 1);					//parte de cima
 	glPopMatrix();
 	gluDeleteQuadric(quad);
 
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128);
 	glEnable(GL_TEXTURE_2D);
@@ -1261,14 +1261,14 @@ void drawNightstand() {
 		glRotatef(-90, 1, 0, 0);
 		gluCylinder(quad, 0.2, 0.15, 3, 12, 12);	//vela
 		glTranslatef(0, 0, 3);
-		gluDisk(quad, 0, 0.15, 12, 1);		//parte de cima
+		gluDisk(quad, 0, 0.15, 12, 1);				//parte de cima
 	glPopMatrix();
 	gluDeleteQuadric(quad);
 
 	glPushMatrix();
 		glTranslatef(-6, 10.15, -20);
 		glScalef(0.05, 0.3, 0.05);
-		glutSolidCube(1);	// rastilho
+		glutSolidCube(1);							// rastilho
 	glPopMatrix();
 
 	if(aux_frames < CAN_OPENING_FRAMES){
@@ -1343,27 +1343,6 @@ void drawNightstand() {
 		glTranslatef(0, 0, -0.5);
 		halfCylinder(0.5, 1.5, 8, textures[20], textures[17], 1);
 	glPopMatrix();
-
-	glEnable(GL_TEXTURE_2D);
-	if(candleFlame){
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		glBindTexture(GL_TEXTURE_2D, flame[currentflame]);
-		currentflame = (currentflame + 1) % 34;
-		glPushMatrix();
-			glTranslatef(-6, 11, -20);
-			GLfloat angle = atan2(camera.position.z + 20, camera.position.x + 6) / DEGREE_DIVISION;
-			glRotatef(90 - angle, 0, 1, 0);
-			glBegin(GL_QUADS);								//chama da vela
-				glTexCoord2d(0,0); glVertex3f(-1, -1, 0);
-				glTexCoord2d(1,0); glVertex3f( 1, -1, 0);
-				glTexCoord2d(1,1); glVertex3f( 1,  1, 0);
-				glTexCoord2d(0,1); glVertex3f(-1,  1, 0);
-			glEnd();
-		glPopMatrix();
-		glDisable(GL_BLEND);
-	}
-	glDisable(GL_TEXTURE_2D);
 }
 
 void drawGlass() {
@@ -1396,6 +1375,33 @@ void drawGlass() {
 	glDisable(GL_BLEND);
 }
 
+void drawFlame() {
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ones);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128);
+	
+	glEnable(GL_TEXTURE_2D);
+	if(candleFlame){
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		glBindTexture(GL_TEXTURE_2D, flame[currentflame]);
+		currentflame = (currentflame + 1) % 34;
+		glPushMatrix();
+			glTranslatef(-6, 11, -20);
+			GLfloat angle = atan2(camera.position.z + 20, camera.position.x + 6) / DEGREE_DIVISION;
+			glRotatef(90 - angle, 0, 1, 0);
+			glBegin(GL_QUADS);								//chama da vela
+				glTexCoord2d(0,0); glVertex3f(-1, -1, 0);
+				glTexCoord2d(1,0); glVertex3f( 1, -1, 0);
+				glTexCoord2d(1,1); glVertex3f( 1,  1, 0);
+				glTexCoord2d(0,1); glVertex3f(-1,  1, 0);
+			glEnd();
+		glPopMatrix();
+		glDisable(GL_BLEND);
+	}
+	glDisable(GL_TEXTURE_2D);
+}
+
 void applyKeys() {
 	// Reads keyState array and moves camera accordingly
 	int i;
@@ -1412,7 +1418,7 @@ void display(void) {
 	applyKeys();
 	camera.render();
 	updateLights();
-	//drawAxis();;
+	//drawAxis();
 	drawWalls();
 	drawWardrobe();
 	drawBed();
@@ -1421,8 +1427,9 @@ void display(void) {
 	drawObjects();
 	drawCeilingLamp();
 	drawSkybox();
-	drawGlass();
 	drawNightstand();
+	drawGlass();
+	drawFlame();
 
 	glutSwapBuffers();
 }
@@ -1577,6 +1584,23 @@ void mouseMovement(int x, int y) {
 	glutPostRedisplay();
 }
 
+void mouseClick(int button, int state, int x, int y){
+	if(button == GLUT_RIGHT_BUTTON){
+		if (state == GLUT_DOWN){
+			glMatrixMode(GL_PROJECTION);
+			glLoadIdentity();
+			gluPerspective(VIEWING_ANGLE - 20,(GLdouble)windowWidth/windowHeight, NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE); //adapt perspective to new window
+			glMatrixMode(GL_MODELVIEW);
+		}
+		else{
+			glMatrixMode(GL_PROJECTION);
+			glLoadIdentity();
+			gluPerspective(VIEWING_ANGLE,(GLdouble)windowWidth/windowHeight, NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE); //adapt perspective to new window
+			glMatrixMode(GL_MODELVIEW);
+		}
+	}
+}
+
 void animate() {
 	// This is needed to keep moving while keys are pressed down
 	glutPostRedisplay();
@@ -1618,6 +1642,7 @@ int main(int argc, char **argv) {
 
 	glutPassiveMotionFunc(mouseMovement);
 	glutMotionFunc(mouseMovement);
+	glutMouseFunc(mouseClick);
 
 	glutIdleFunc(animate);
 
